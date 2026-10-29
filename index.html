@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>T ↑ ⇒ Nph ↑ ⇒ τ ↓ ⇒ μ ↓</title>
+<!-- Equations use native HTML; no network connection required. -->
+
+<style>
+:root{--bg:#05070d;--panel:#0d1220;--line:#1c2438;--text:#e8edf7;--mut:#8b97b3;--acc:#6ee7ff;--hot:#ff5a3c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:90}
+header{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;height:56px;display:flex;align-items:center;gap:16px;padding:0 18px;background:rgba(5,7,13,.8);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:20}
+.brand{font-weight:600;letter-spacing:.02em;font-size:15px;color:var(--text);margin-right:auto;white-space:nowrap}
+.brand span{color:var(--hot)}
+nav{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px}
+nav button{background:none;border:0;color:var(--mut);font:500 13px system-ui,sans-serif;padding:7px 14px;border-radius:999px;cursor:pointer;transition:.2s}
+nav button.on{background:linear-gradient(135deg,#1b2b4a,#2a1a2e);color:var(--text);box-shadow:0 0 0 1px #2c3b5e inset}
+.tab{position:fixed;inset:0}
+#macro{position:absolute;inset:0;width:100%;height:100%}
+
+/* Bottom Formulas Area */
+#bottom-formulas {
+    position: absolute;
+    top: calc(max(env(safe-area-inset-top,0px) + 38vh, 260px));
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(920px, 95vw);
+    height: calc(100vh - max(env(safe-area-inset-top,0px) + 38vh, 260px) - 80px);
+    overflow-y: auto;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 24px;
+    /* Custom scrollbar for inner div */
+    scrollbar-width: thin;
+    scrollbar-color: #475569 transparent;
+}
+#bottom-formulas::-webkit-scrollbar { width: 6px; }
+#bottom-formulas::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+
+.f-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+.f-card {
+    background: rgba(10, 14, 24, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid #26324f;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    color: #e8edf7;
+    font-size: 1.15em;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Accordion Styling */
+.acc-card {
+    background: rgba(10, 14, 24, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid #26324f;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.acc-card summary {
+    padding: 18px 24px;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text);
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,255,255,0.02);
+    letter-spacing: 0.02em;
+}
+.acc-card summary:hover { background: rgba(255,255,255,0.05); }
+.acc-card summary::-webkit-details-marker { display: none; }
+.acc-card summary::after { content: '+'; font-size: 1.5em; color: var(--mut); line-height: 1; transition: 0.3s; }
+.acc-card[open] summary::after { content: '−'; transform: rotate(180deg); }
+.acc-content {
+    padding: 24px;
+    border-top: 1px solid #26324f;
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    gap: 30px;
+    align-items: start;
+}
+@media(max-width: 650px) {
+    .acc-content { grid-template-columns: 1fr; }
+}
+
+/* Custom Interactive Equation */
+.math-eq {
+    font-family: "KaTeX_Math", "Times New Roman", serif;
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 16px;
+    background: #05070d;
+    border: 1px solid #1c2438;
+    border-radius: 12px;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+}
+.math-eq i { font-style: italic; }
+.math-eq .sym { 
+    padding: 2px 6px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    transition: 0.2s; 
+    border: 1px solid transparent; 
+}
+.math-eq .sym:hover, .math-eq .sym.active { 
+    background: rgba(110,231,255,0.15); 
+    border-color: rgba(110,231,255,0.4); 
+    color: var(--acc); 
+}
+.frac { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; vertical-align: middle; margin: 0 4px; }
+.frac > .num { border-bottom: 1.5px solid #e8edf7; padding: 0 6px 4px; }
+.frac > .den { padding: 4px 6px 0; }
+.frac.inline { font-size: 0.65em; }
+.frac.inline > .num { border-bottom: 1px solid #b9c4dd; padding: 0 3px 2px;}
+.frac.inline > .den { padding: 2px 3px 0;}
+.math-eq sub { font-size: 0.65em; vertical-align: baseline; position: relative; bottom: -0.2em; }
+.math-eq sup { font-size: 0.6em; vertical-align: baseline; position: relative; top: -0.6em; margin-left: 2px; }
+
+.explainer-box {
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: rgba(110,231,255,0.08);
+    border-left: 3px solid var(--acc);
+    border-radius: 4px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: #e8edf7;
+    min-height: 75px;
+    display: flex;
+    align-items: center;
+}
+
+#occ-chart-container {
+    background: #05070d;
+    border: 1px solid #1c2438;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+}
+.chart-title { font-size: 12px; color: var(--mut); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+#lens{position:fixed;z-index:60;overflow:hidden;background:#05070d;cursor:pointer;border:2px solid rgba(180,220,255,.55);box-shadow:0 0 0 6px rgba(110,231,255,.08),0 10px 40px rgba(0,0,0,.6),0 0 40px rgba(110,231,255,.25);transition:left .75s cubic-bezier(.65,0,.25,1),top .75s cubic-bezier(.65,0,.25,1),width .75s cubic-bezier(.65,0,.25,1),height .75s cubic-bezier(.65,0,.25,1),border-radius .75s cubic-bezier(.65,0,.25,1),border-width .75s,box-shadow .75s}
+#lens.open{cursor:default;border-width:0;box-shadow:none}
+#lens canvas{position:absolute;left:50%;top:50%;transform-origin:center;transition:transform .75s cubic-bezier(.65,0,.25,1)}
+#lens::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 30px rgba(0,0,0,.6);pointer-events:none;transition:opacity .5s}
+#lens.open::after{opacity:0}
+#lenstag{position:fixed;z-index:61;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);text-align:center;pointer-events:none;transition:opacity .3s}
+
+#ui{position:fixed;inset:0;z-index:65;pointer-events:none;opacity:0;transition:opacity .5s}
+#ui.show{opacity:1;transition-delay:.45s}
+#ui>*{pointer-events:auto}
+#back{position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);left:16px;background:rgba(13,18,32,.75);backdrop-filter:blur(8px);border:1px solid #2c3b5e;color:var(--text);padding:9px 16px;border-radius:999px;font:500 13px system-ui,sans-serif;cursor:pointer;transition:.2s}
+#back:hover{border-color:var(--acc);background:rgba(20,28,45,.85)}
+.legend{position:absolute;right:16px;top:calc(env(safe-area-inset-top,0px) + 16px);font-size:12px;color:var(--mut);background:rgba(13,18,32,.75);padding:9px 12px;border-radius:12px;border:1px solid var(--line);line-height:1.7}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+#bar{position:fixed;z-index:80;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 20px);width:min(720px,calc(100% - 32px));display:flex;flex-wrap:wrap;align-items:center;gap:16px;padding:14px 20px;background:rgba(10,14,24,.9);backdrop-filter:blur(16px);border:1px solid #26324f;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.05) inset}
+.slider-group{display:flex;align-items:center;flex:1;min-width:280px;gap:12px}
+#bar label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);white-space:nowrap;width:70px}
+#bar output{font:600 15px ui-monospace,Menlo,monospace;width:72px;text-align:right;color:var(--acc)}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:6px;border-radius:6px;background:linear-gradient(90deg,#4aa3ff,#ffd36e,#ff3b30);outline:none;margin:0;cursor:pointer}
+input[type=range].efield{background:linear-gradient(90deg,#1c2438,#6ee7ff);}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid #10182b;box-shadow:0 0 0 2px var(--acc),0 0 14px var(--acc);cursor:grab;transition:transform .1s}
+input[type=range]::-webkit-slider-thumb:active{transform:scale(1.15)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid #10182b;box-shadow:0 0 0 2px var(--acc);cursor:grab}
+
+#t2{overflow-y:auto;padding:calc(env(safe-area-inset-top,0px) + 76px) 18px 130px;background:radial-gradient(900px 500px at 80% -10%,#14203a 0,transparent 60%),var(--bg)}
+.wrap{max-width:820px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start}
+@media(max-width:860px){.wrap{grid-template-columns:1fr}}
+.card{background:linear-gradient(180deg,#0e1424,#0a0f1c);border:1px solid var(--line);border-radius:18px;padding:26px 30px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.card h2{margin:0 0 12px;font-size:19px;color:var(--acc);letter-spacing:.02em}
+.card p,.card li{color:#b9c4dd;font-size:15.5px;line-height:1.75;margin-bottom:14px}
+.sticky{position:static}
+.eq{margin:20px 0;padding:20px;text-align:center;font:italic 600 32px Georgia,serif;background:#05070d;border:1px solid #1d2a46;border-radius:14px;color:var(--text);box-shadow:inset 0 4px 16px rgba(0,0,0,.5)}
+.eq small{font:500 13px system-ui;color:var(--mut);display:block;margin-top:8px;font-style:normal;letter-spacing:.03em}
+.vars{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;font-size:14.5px;color:#b9c4dd;margin-bottom:20px;background:rgba(255,255,255,.02);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,.05)}
+.vars b{font:italic 600 17px Georgia,serif;color:var(--acc)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.stat{background:#0a1020;border:1px solid #1d2a46;border-radius:14px;padding:14px 10px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.stat div:first-child{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.stat div:last-child{font:600 19px ui-monospace,Menlo,monospace;color:var(--text)}
+.note{font-size:12.5px;color:var(--mut);margin-top:14px;line-height:1.6}
+svg text{fill:#8b97b3;font:11px system-ui,sans-serif}
+.chain{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:20px 0;justify-content:center}
+.chain span{background:#05070d;border:1px solid #1d2a46;border-radius:10px;padding:10px 14px;font-size:15px;color:var(--text)}
+.chain i{color:var(--hot);font-style:normal;font-weight:bold}
+.hl{color:#fff;font-weight:600;background:rgba(110,231,255,.15);padding:1px 6px;border-radius:4px;border:1px solid rgba(110,231,255,.3)}
+
+/* Keep navigation clickable above the expanded lattice and formula panels. */
+header{z-index:100}
+#ui{visibility:hidden}
+#ui.show{visibility:visible}
+#ui>*{pointer-events:none}
+#ui.show>*{pointer-events:auto}
+#back,.legend{top:calc(env(safe-area-inset-top,0px) + 72px)}
+#micro-formulas{position:fixed;z-index:70;right:18px;bottom:125px;width:min(580px,calc(100vw - 36px));max-height:calc(100dvh - 240px);overflow-y:auto;display:grid;gap:10px;scrollbar-width:thin}
+[hidden]{display:none!important}
+#micro-formulas .acc-content{grid-template-columns:1fr;padding:14px;gap:0}
+#micro-formulas .acc-card summary{padding:12px 18px}
+#micro-formulas .math-eq{padding:10px;font-size:23px}
+#micro-formulas .explainer-box{margin-top:10px;min-height:62px;font-size:13px;padding:10px 13px}
+#tau-equation{padding:8px 13px}#tau-equation .math-eq{background:none;border:0;box-shadow:none;padding:3px}
+#bottom-formulas{height:auto;max-height:calc(100vh - max(env(safe-area-inset-top,0px) + 38vh, 260px) - 140px)}
+#macro-equations{grid-template-columns:1fr 1fr}
+#macro-equations .math-eq{background:none;border:0;box-shadow:none;font-size:30px;padding:6px}
+.formula-note{color:var(--mut);font:12px/1.5 system-ui;margin:8px 0 0}
+.occupation-trend{margin-top:24px;padding-top:22px;border-top:1px solid var(--line)}
+#occ-chart-container{max-width:420px;margin:14px auto 0}
+.sym:focus-visible,button:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+@media(max-width:650px){header{padding:0 10px;gap:7px}.brand{font-size:12px}nav button{font-size:11px;padding:7px 9px}#micro-formulas{bottom:160px;right:12px;width:calc(100vw - 24px);max-height:calc(100dvh - 290px)}#macro-equations{gap:10px}.f-card{padding:10px}#macro-equations .math-eq{font-size:25px}#bottom-formulas{max-height:calc(100dvh - 430px)}.legend{font-size:10px;right:10px}#back{font-size:11px;padding:8px 10px}.card{padding:22px 18px}}
+
+/* Bottom equation docks keep the larger visualizations in view. */
+:root{--control-clearance:112px}
+#bottom-formulas,#micro-formulas{top:auto;bottom:var(--control-clearance);left:50%;right:auto;transform:translateX(-50%);width:min(1000px,calc(100vw - 36px));height:auto;max-height:34vh;overflow-y:auto;display:grid;gap:10px;padding:0 2px 5px;scrollbar-width:thin}
+#micro-formulas{max-height:41vh}
+#macro-equations,#micro-equations{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.live-readouts{display:grid;grid-template-columns:1.2fr 1fr;gap:12px}
+.live-stat{background:rgba(10,14,24,.94);border:1px solid #26324f;border-radius:12px;padding:12px 18px;backdrop-filter:blur(12px)}
+.live-stat>span{display:block;color:var(--mut);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.live-stat strong{display:block;font:600 23px ui-monospace,Menlo,monospace;line-height:1.45;color:var(--text);margin-top:3px}
+.live-stat small{font:11px system-ui;color:var(--mut);white-space:nowrap}
+.live-stat.emphasized{border-color:#37768a;background:rgba(13,34,46,.96)}
+.live-stat.emphasized strong{font-size:31px;color:var(--acc)}
+#macro-equations .acc-content,#micro-equations .acc-content{grid-template-columns:1fr;gap:0;padding:12px}
+#macro-equations .math-eq,#micro-equations .math-eq{font-size:25px;padding:10px;background:#05070d;border:1px solid #1c2438;border-radius:10px;box-shadow:none}
+#macro-equations summary,#micro-equations summary{font-size:13px;padding:12px 16px}
+#tau-equation{padding:0}
+#macro-equations .explainer-box,#micro-equations .explainer-box{font-size:12px;line-height:1.45;min-height:64px;padding:10px 12px;margin-top:10px}
+.legend .dot{width:10px;height:10px}.legend .electron-dot{width:4px;height:4px;margin-left:3px;margin-right:9px}
+#bar{bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}
+@media(max-width:650px){:root{--control-clearance:155px}#bottom-formulas,#micro-formulas{width:calc(100vw - 24px);max-height:39vh}#micro-formulas{max-height:43vh}#macro-equations,#micro-equations{gap:8px}.live-readouts{gap:8px}.live-stat{padding:9px 10px}.live-stat strong{font-size:19px}.live-stat.emphasized strong{font-size:24px}.live-stat small{font-size:9px}#macro-equations .math-eq,#micro-equations .math-eq{font-size:20px;padding:8px}#macro-equations summary,#micro-equations summary{font-size:11px;padding:10px}#micro-equations .math-eq .sym{padding:2px 3px}.explainer-box{overflow-wrap:anywhere}}
+@media(max-width:430px){#macro-equations,#micro-equations{grid-template-columns:1fr}.live-stat strong small{display:block}}
+
+/* Fixed slots: opening a formula never changes its title or a neighbor's position. */
+#bottom-formulas,#micro-formulas{position:fixed;top:auto;bottom:var(--control-clearance);width:min(920px,calc(100vw - 32px));height:194px;max-height:none;overflow:visible;display:block;padding:0;gap:0}
+#bottom-formulas .live-readouts,#micro-formulas .live-readouts{position:absolute;inset:0 0 auto;grid-template-columns:1fr 1fr;gap:10px;height:49px}
+.live-stat{padding:6px 12px;border-radius:9px;min-width:0;overflow:hidden}
+.live-stat>span{font-size:9px;letter-spacing:.03em;line-height:1.4}
+.live-stat strong{font-size:17px;line-height:1.3;margin-top:2px;white-space:nowrap}
+.live-stat.emphasized strong{font-size:21px;line-height:1.1}
+.live-stat small{font-size:9px}
+#macro-equations,#micro-equations{position:absolute;top:58px;left:0;right:0;height:136px;display:block}
+#macro-equations>.acc-card,#micro-equations>.acc-card{position:absolute;top:0;left:0;width:calc(50% - 5px);margin:0;border-radius:9px;padding:0;background:rgba(10,14,24,.96);overflow:hidden}
+#macro-equations>.acc-card:nth-of-type(2),#micro-equations>.acc-card:nth-of-type(2){left:calc(50% + 5px)}
+#macro-equations summary,#micro-equations summary{height:30px;min-height:30px;padding:5px 11px;font-size:11px;line-height:20px;letter-spacing:0}
+#macro-equations summary::after,#micro-equations summary::after{font-size:16px}
+#macro-equations .acc-content,#micro-equations .acc-content{padding:0;display:block;gap:0;height:104px;overflow:hidden}
+#macro-equations .acc-content>div,#micro-equations .acc-content>div{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);align-items:center;gap:0;height:100%;min-width:0}
+#macro-equations .math-eq,#micro-equations .math-eq{justify-content:flex-start;align-self:stretch;align-items:center;margin:0;padding:8px 9px;font-size:21px;gap:1px;min-width:0;overflow-x:auto;border:0;border-radius:0;background:transparent;box-shadow:none}
+#occupation-equation .math-eq{font-size:20px}
+#macro-equations .math-eq .sym,#micro-equations .math-eq .sym{padding:2px 3px}
+#macro-equations .explainer-box,#micro-equations .explainer-box{display:block;align-self:stretch;height:104px;min-height:0;margin:0;padding:9px 10px;font-size:11px;line-height:1.45;border:0;border-left:1px solid #26324f;border-radius:0;background:rgba(110,231,255,.045);overflow-y:auto;overflow-wrap:anywhere;scrollbar-width:thin}
+#macro-equations .explainer-box strong,#micro-equations .explainer-box strong{color:var(--acc);font-size:11px}
+@media(max-width:650px){#bottom-formulas,#micro-formulas{width:calc(100vw - 24px);height:334px;max-height:none}#macro-equations,#micro-equations{height:276px}#macro-equations>.acc-card,#micro-equations>.acc-card{width:100%;left:0}#macro-equations>.acc-card:nth-of-type(2),#micro-equations>.acc-card:nth-of-type(2){left:0;top:142px}.live-stat{padding:6px 9px}.live-stat strong{font-size:16px}.live-stat.emphasized strong{font-size:19px}.live-stat small{font-size:8px}#macro-equations .math-eq,#micro-equations .math-eq{font-size:20px}.live-stat strong small{display:inline}}
+@media(max-height:620px) and (min-width:651px){:root{--control-clearance:94px}#bottom-formulas,#micro-formulas{height:174px}#macro-equations,#micro-equations{height:116px}#macro-equations .acc-content,#micro-equations .acc-content,#macro-equations .explainer-box,#micro-equations .explainer-box{height:84px}}
+
+/* Center each equation within its fixed formula area. */
+#macro-equations .math-eq,#micro-equations .math-eq{display:flex;justify-content:center;align-items:center;align-self:stretch;width:100%;height:100%;min-height:0;text-align:center}
+
+/* Center the entire mathematical expression, including its fractions and powers. */
+#macro-equations .math-eq,#micro-equations .math-eq{position:relative;display:block;padding:0;overflow:visible}
+.equation-ink{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;gap:1px;white-space:nowrap;line-height:1.1}
+#concept-labels{position:fixed;inset:0;z-index:76;pointer-events:none}
+#concept-arrows{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.concept-label{position:absolute;pointer-events:auto;border:0;background:rgba(5,7,13,.82);border-radius:8px;color:#7dd8ff;padding:4px 8px;font:italic 15px/1.25 'Comic Sans MS','Segoe Print',cursive;text-align:left;cursor:pointer;max-width:220px;text-shadow:0 1px 4px #05070d;box-shadow:none}
+.concept-label:hover{background:#12283d;color:#c4efff}
+.concept-target{position:absolute;pointer-events:auto;width:24px;height:24px;transform:translate(-50%,-50%);background:transparent;border:1px dashed #7dd8ff99;border-radius:50%;cursor:pointer;padding:0}
+.concept-target:hover{background:#7dd8ff22;border-color:#7dd8ff}
+.live-stat[data-concept]{cursor:pointer}.live-stat[data-concept]:hover{border-color:#7dd8ff}
+#concept-dialog{color:var(--text);background:linear-gradient(145deg,#102238,#090f1b);border:1px solid #42708b;border-radius:18px;width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 50px);padding:28px;box-shadow:0 24px 100px #000a;overflow-y:auto}
+#concept-dialog::backdrop{background:#020711b8;backdrop-filter:blur(5px)}
+#concept-dialog h2{font-size:23px;font-weight:600;color:#8cddff;margin:8px 36px 16px 0;line-height:1.25}
+#concept-dialog p{color:#c4cfe2;font-size:15px;line-height:1.7;margin:12px 0}
+#concept-dialog strong{color:#f2f7ff}#concept-dialog .popup-equation{font:italic 24px Georgia,serif;color:#a0e8ff;text-align:center;padding:12px;background:#050b14;border-radius:10px}
+#concept-dialog .popup-view{border-left:2px solid #7dd8ff;padding-left:13px;font-size:13px}
+#close-concept{position:absolute;right:14px;top:12px;background:transparent;color:#b6dcef;border:0;border-radius:50%;font:28px system-ui;width:36px;height:36px;cursor:pointer}
+#close-concept:hover{background:#ffffff14}
+@media(max-width:650px){.concept-label{font-size:12px;max-width:165px;padding:4px 6px}#concept-dialog{padding:22px}#concept-dialog h2{font-size:21px}#concept-dialog p{font-size:14px}}
+
+/* Subtle callouts leave the moving lattice visually prominent. */
+:root{--control-clearance:82px}
+.concept-label{font-size:11px;line-height:1.2;max-width:175px;padding:2px 4px;background:transparent;opacity:.6;color:#91cfee;text-shadow:0 1px 3px #05070d}
+.concept-label:hover,.concept-label:focus-visible{opacity:1;background:#102033b3}
+#concept-arrows>path{stroke-width:1.1;opacity:.45}
+.concept-target{width:18px;height:18px;border-color:#7dd8ff38;opacity:.55}
+.concept-target:hover,.concept-target:focus-visible{opacity:1}
+@media(max-width:650px){:root{--control-clearance:122px}.concept-label{font-size:10px;max-width:150px;padding:2px 3px}}
+/* Tab 3 (Game) Styling */
+#t3 {
+    position: fixed;
+    inset: 0;
+    background: #05070d;
+    z-index: 10;
+}
+#game-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+#game-ui-overlay {
+    position: absolute;
+    top: calc(env(safe-area-inset-top,0px) + 70px);
+    left: 20px;
+    right: 20px;
+    pointer-events: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    z-index: 20;
+}
+.game-card {
+    background: rgba(10, 14, 24, 0.88);
+    backdrop-filter: blur(16px);
+    border: 1px solid #26324f;
+    border-radius: 14px;
+    padding: 14px 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    pointer-events: auto;
+}
+.stage-badge {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--acc);
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+.stage-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+}
+.game-hud-stats {
+    display: flex;
+    gap: 16px;
+}
+.gh-stat {
+    text-align: center;
+}
+.gh-stat label {
+    display: block;
+    font-size: 10px;
+    color: var(--mut);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.gh-stat val {
+    font: 700 20px ui-monospace, Menlo, monospace;
+    color: var(--text);
+}
+
+/* Post Game Overlay Modal */
+#game-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background: rgba(5,7,13,0.85);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+}
+#game-modal.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+.modal-content {
+    background: linear-gradient(180deg, #0e1424, #0a0f1c);
+    border: 1px solid #26324f;
+    border-radius: 20px;
+    width: min(640px, 95vw);
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 30px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    text-align: center;
+}
+.modal-content h2 { color: var(--acc); margin-top: 0; font-size: 24px; }
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+}
+.res-card {
+    background: #05070d;
+    border: 1px solid #1c2438;
+    border-radius: 12px;
+    padding: 14px 8px;
+}
+.res-card div:first-child { font-size: 11px; color: var(--mut); text-transform: uppercase; margin-bottom: 6px; }
+.res-card div:last-child { font: 700 18px ui-monospace, Menlo, monospace; color: var(--acc); }
+.restart-btn {
+    background: linear-gradient(135deg, #1b2b4a, #2a1a2e);
+    border: 1px solid var(--acc);
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.restart-btn:hover { transform: scale(1.04); background: var(--acc); color: #05070d; }
+
+@media(max-width:650px){#t3 .results-grid,#game-modal .results-grid{grid-template-columns:1fr}#game-ui-overlay{flex-direction:column;gap:10px}}
+
+/* Description text uses regular weight; headings and numeric readouts retain their hierarchy. */
+#t2 .hl,#t2 p,#t2 li,#concept-body p,.explainer-box{font-weight:400}
+
+/* Temperature Trends follows one vertical learning sequence. */
+#t2 .trends-flow{display:block;max-width:820px}
+#t2 .trend-section{margin:0 0 32px}#t2 .trend-plot{margin:16px 0}#t2 .card{position:static}
+#t2 .trend-heading>span{color:var(--acc);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+#t2 .trend-heading h2{font-size:25px;color:var(--text);margin:8px 0 12px}
+#t2 .trend-heading p{color:var(--mut);font-size:14px;line-height:1.65}
+#t2 h3{font-size:18px;font-weight:500;color:var(--acc);margin:0 0 12px}
+#t2 .trend-plot svg{display:block;width:100%;height:auto;margin:12px 0;overflow:visible}
+#t2 .plot-legend{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--mut);font-size:11px;margin:10px 0}
+#t2 .plot-legend span:before{content:"";display:inline-block;width:15px;height:2px;background:var(--key);vertical-align:middle;margin-right:6px}
+#t2 .plot-status{color:var(--acc);font-size:13px;min-height:22px}
+#t2 .description-stack{display:grid;grid-template-columns:1fr;gap:16px}
+#t2 .description-stack p{font-weight:400}#t2 .description-stack .popup-equation{font:italic 24px Georgia,serif;text-align:center;color:var(--acc);margin:18px 0}
+#trends-hallway{margin:0 0 24px}#t2 .note{font-weight:400}
+
+#game-modal .results-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#game-modal .result-metrics{display:grid;grid-template-columns:1fr auto;gap:7px 10px;text-align:left;font:12px/1.4 system-ui;color:var(--mut)}
+#game-modal .result-metrics span:nth-child(even){color:var(--acc);font-variant-numeric:tabular-nums;text-align:right}
+#game-modal .game-result-chart{background:#05070d;border:1px solid #1c2438;border-radius:14px;padding:14px;margin:16px 0}
+#game-modal .time-comparison{font-size:14px;color:var(--acc);line-height:1.6}
+@media(max-width:400px){#game-modal .results-grid{grid-template-columns:1fr}}
+
+#game-modal .results-tabs{display:flex;gap:6px;padding:4px;background:#050b14;border:1px solid #26324f;border-radius:12px;margin:18px 0 12px}
+#game-modal .results-tabs button{flex:1;border:0;background:transparent;border-radius:8px;color:var(--mut);font:12px/1.4 system-ui;padding:9px 6px;cursor:pointer}
+#game-modal .results-tabs button[aria-selected=true]{color:var(--acc);background:#142a3c}
+#game-modal .carousel-controls{display:flex;align-items:center;justify-content:center;gap:18px;margin:16px 0;color:var(--mut);font-size:12px}
+#game-modal .carousel-controls button{background:#101d30;border:1px solid #26324f;border-radius:50%;width:34px;height:34px;color:var(--acc);font-size:18px;cursor:pointer}
+#game-modal .result-page{animation:result-reveal .16s ease-out}#results-viewport{touch-action:pan-y}
+@keyframes result-reveal{from{opacity:.5;transform:translateX(5px)}to{opacity:1;transform:translateX(0)}}
+@media(prefers-reduced-motion:reduce){#game-modal .result-page{animation:none}}
+
+/* Instrument-style title: single vertical changes, double horizontal relationships. */
+.brand.relationship-title{display:inline-flex;align-items:center;gap:7px;font:500 14px/1.2 ui-monospace,'SFMono-Regular',Consolas,'Liberation Mono',monospace;letter-spacing:.015em}
+.brand.relationship-title .chain-term{color:#c5eaf1;display:inline-flex;align-items:baseline;gap:2px}
+.brand.relationship-title sub{font-size:.62em;position:relative;bottom:-.2em}
+.brand.relationship-title .trend-change{color:#ffb486;font-size:16px;font-weight:400}
+.brand.relationship-title .chain-link{color:#739eb8;font-size:16px;margin:0 1px}
+#t3 .game-actions{display:flex;align-items:center;gap:8px;margin-top:12px}
+#t3 .game-actions button{font:500 12px system-ui;border:1px solid #35536c;border-radius:8px;padding:7px 14px;cursor:pointer;background:#112539;color:#bceeff}
+#t3 #game-start{background:#163b47;border-color:#377d8d;color:#ddfbff}
+#t3 .game-actions button:disabled{opacity:.35;cursor:default}
+#game-state{font-size:11px;color:var(--mut);margin-left:3px}
+@media(max-width:650px){.brand.relationship-title{font-size:11px;gap:3px}.brand.relationship-title .trend-change,.brand.relationship-title .chain-link{font-size:12px}}
+
+/* ---- Micro view: formula dock grows upward from the control bar, so opened cards never sit under it ---- */
+#micro-formulas{height:auto;max-height:calc(100dvh - var(--control-clearance) - 72px);overflow-x:hidden;overflow-y:auto;display:grid;gap:10px;bottom:calc(var(--control-clearance) + 6px)}
+#micro-formulas .live-readouts{position:static;inset:auto;height:auto}
+#micro-formulas #micro-equations{position:static;height:auto;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
+#micro-formulas #micro-equations>.acc-card,#micro-formulas #micro-equations>.acc-card:nth-of-type(2){position:relative;top:auto;left:auto;width:auto;overflow:hidden}
+#micro-formulas #micro-equations .acc-content{height:auto;overflow:visible}
+#micro-formulas #micro-equations .acc-content>div{height:170px}
+#micro-formulas #micro-equations .math-eq{height:170px}
+#micro-formulas #micro-equations .explainer-box{height:170px;overflow-y:auto}
+@media(max-width:650px){#micro-formulas #micro-equations{grid-template-columns:1fr}#micro-formulas #micro-equations .acc-content>div,#micro-formulas #micro-equations .math-eq,#micro-formulas #micro-equations .explainer-box{height:150px}}
+@media(max-height:620px) and (min-width:651px){#micro-formulas #micro-equations .acc-content>div,#micro-formulas #micro-equations .math-eq,#micro-formulas #micro-equations .explainer-box{height:140px}}
+
+/* ---- Macro view: same upward-growing formula dock as the micro view ---- */
+#bottom-formulas{height:auto;max-height:calc(100dvh - var(--control-clearance) - 72px);overflow-x:hidden;overflow-y:auto;display:grid;gap:10px;bottom:calc(var(--control-clearance) + 6px)}
+#bottom-formulas .live-readouts{position:static;inset:auto;height:auto}
+#bottom-formulas #macro-equations{position:static;height:auto;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
+#bottom-formulas #macro-equations>.acc-card,#bottom-formulas #macro-equations>.acc-card:nth-of-type(2){position:relative;top:auto;left:auto;width:auto;overflow:hidden}
+#bottom-formulas #macro-equations .acc-content{height:auto;overflow:visible}
+#bottom-formulas #macro-equations .acc-content>div{height:170px}
+#bottom-formulas #macro-equations .math-eq{height:170px}
+#bottom-formulas #macro-equations .explainer-box{height:170px;overflow-y:auto}
+@media(max-width:650px){#bottom-formulas #macro-equations{grid-template-columns:1fr}#bottom-formulas #macro-equations .acc-content>div,#bottom-formulas #macro-equations .math-eq,#bottom-formulas #macro-equations .explainer-box{height:150px}}
+@media(max-height:620px) and (min-width:651px){#bottom-formulas #macro-equations .acc-content>div,#bottom-formulas #macro-equations .math-eq,#bottom-formulas #macro-equations .explainer-box{height:140px}}
+
+/* Touch targets and responsive navigation for phones and tablets. */
+.touch-hint,#game-touch-pad{display:none}
+#game-touch-pad{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);left:14px;z-index:30;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px);gap:5px;touch-action:none}
+#game-touch-pad button{width:44px;height:44px;border:1px solid #496578;border-radius:11px;background:#0c2337d9;color:#b9edff;font:22px system-ui;touch-action:none;user-select:none;-webkit-user-select:none}
+#game-touch-pad button:disabled{opacity:.3}#game-touch-pad button[aria-pressed=true]{background:#285a6b}
+.pad-up{grid-column:2;grid-row:1}.pad-left{grid-column:1;grid-row:2}.pad-down{grid-column:2;grid-row:2}.pad-right{grid-column:3;grid-row:2}
+@media(pointer:coarse){#game-touch-pad{display:grid}.touch-hint{display:inline}.keyboard-hint{display:none}input[type=range]{min-height:28px;background-size:100% 6px}input[type=range]::-webkit-slider-thumb{width:25px;height:25px}}
+@media(max-width:650px){
+ header{height:96px;padding:6px 10px;gap:4px;flex-direction:column;align-items:stretch;justify-content:center}
+ .brand.relationship-title{width:100%;justify-content:center;margin:0;font-size:13px;gap:5px;height:28px;flex-shrink:0}
+ header nav{width:100%;justify-content:space-between;border-radius:12px;gap:2px}header nav button{flex:1;min-width:0;min-height:40px;font-size:11px;padding:5px 3px;white-space:normal;border-radius:8px}
+ #back,.legend{top:calc(var(--app-header-bottom,96px) + 8px)}#back{min-height:36px}.legend{font-size:10px}
+ #t2{padding-top:calc(var(--app-header-bottom,96px) + 16px);padding-left:10px;padding-right:10px}
+ #t2 .card{padding:18px 13px}#t2 .trend-plot svg text{font-size:11px}#t2 .stats{gap:6px}#t2 .stat{padding:10px 5px}#t2 .stat div:last-child{font-size:16px}
+ #bar{width:calc(100% - 16px);padding:10px 12px;gap:10px;border-radius:14px}#bar .slider-group{min-width:0;flex-basis:100%;gap:9px}#bar label{width:59px;font-size:10px}#bar output{font-size:12px;width:65px}#bar input{min-width:0;min-height:28px}
+ #game-ui-overlay{top:calc(var(--app-header-bottom,96px) + 8px);left:8px;right:8px;gap:6px}#t3 .game-card{padding:8px 11px;width:100%}#t3 .stage-title{font-size:15px}#t3 .game-hud-stats{justify-content:space-around}#t3 .game-actions{margin-top:7px}#t3 .game-actions button{min-height:40px}
+ #game-touch-pad{display:grid}.touch-hint{display:inline}.keyboard-hint{display:none}
+ #game-modal{padding:10px}.modal-content{width:100%;padding:20px 14px;max-height:calc(100dvh - 20px)}#game-modal .results-tabs button{min-height:42px}.restart-btn{min-height:44px}
+ #concept-dialog{max-height:calc(100dvh - 24px)}#close-concept{width:44px;height:44px}.concept-label{min-height:30px;font-size:11px;max-width:150px}
+ .concept-target{width:40px;height:40px;border:0}.concept-target:after{content:"";position:absolute;width:16px;height:16px;border:1px dashed #7dd8ff55;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
+ #macro-equations summary,#micro-equations summary{min-height:36px;height:36px;line-height:24px}
+ #macro-equations .acc-content,#micro-equations .acc-content{height:98px}#macro-equations .explainer-box,#micro-equations .explainer-box{height:98px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand relationship-title" aria-label="Temperature increases, phonon occupation increases, relaxation time decreases, mobility decreases" title="Phonon-dominated regime"><span class="chain-term">T<span class="trend-change">↑</span></span><span class="chain-link">⇒</span><span class="chain-term">N<sub>ph</sub><span class="trend-change">↑</span></span><span class="chain-link">⇒</span><span class="chain-term">τ<span class="trend-change">↓</span></span><span class="chain-link">⇒</span><span class="chain-term">μ<span class="trend-change">↓</span></span></div>
+  <nav role="tablist" aria-label="Module views">
+    <button id="b1" class="on" role="tab" aria-selected="true" aria-controls="t1">Interactive Visualizer</button>
+    <button id="b2" role="tab" aria-selected="false" aria-controls="t2">Temperature Trends</button>
+    <button id="b3" role="tab" aria-selected="false" aria-controls="t3">Physics Game</button>
+  </nav>
+</header>
+
+<section class="tab" id="t1" role="tabpanel" aria-labelledby="b1">
+  <canvas id="macro"></canvas>
+  
+  <div id="bottom-formulas">
+    <div class="live-readouts" aria-label="Calculated macroscopic values"><div class="live-stat"><span>Drift speed |v<sub>d</sub>|</span><strong id="macro-drift">0.560 <small>m/s</small></strong></div><div class="live-stat emphasized"><span>Carrier mobility μ</span><strong id="macro-mobility">1,400 <small>cm²/(V·s)</small></strong></div></div>
+    <div class="f-grid" id="macro-equations"><details class="acc-card" id="drift-equation"><summary>Drift speed</summary><div class="acc-content"><div><div class="math-eq"><span class="equation-ink"><span class="sym" data-info="Drift speed&lt;br&gt;Magnitude of the average directed carrier velocity, in m/s; distinct from random thermal speed." title="Drift speed: Magnitude of the average directed carrier velocity, in m/s; distinct from random thermal speed.">v<sub>d</sub></span> = <span class="sym" data-info="Mobility&lt;br&gt;Drift speed per unit electric field. Readout: cm²/(V·s); use m²/(V·s) when calculating drift speed." title="Mobility: Drift speed per unit electric field. Readout: cm²/(V·s); use m²/(V·s) when calculating drift speed.">μ</span><span class="sym" data-info="Electric field magnitude&lt;br&gt;Strength of the applied electric field in V/m." title="Electric field magnitude: Strength of the applied electric field in V/m.">E</span></span></div><div class="explainer-box" aria-live="polite"></div></div></div></details><details class="acc-card" id="mobility-equation"><summary>Carrier mobility</summary><div class="acc-content"><div><div class="math-eq"><span class="equation-ink"><span class="sym" data-info="Mobility&lt;br&gt;Drift speed per unit electric field. Readout: cm²/(V·s); use m²/(V·s) when calculating drift speed." title="Mobility: Drift speed per unit electric field. Readout: cm²/(V·s); use m²/(V·s) when calculating drift speed.">μ</span> = <span class="frac"><span class="num"><span class="sym" data-info="Charge magnitude&lt;br&gt;Magnitude of electron charge: 1.602176634 × 10⁻¹⁹ C." title="Charge magnitude: Magnitude of electron charge: 1.602176634 × 10⁻¹⁹ C.">q</span><span class="sym" data-info="Momentum relaxation time&lt;br&gt;Characteristic time for scattering to erase directed carrier momentum. Readout in picoseconds; 1 ps = 10⁻¹² s." title="Momentum relaxation time: Characteristic time for scattering to erase directed carrier momentum. Readout in picoseconds; 1 ps = 10⁻¹² s.">τ</span></span><span class="den"><span class="sym" data-info="Effective mass&lt;br&gt;Carrier response to force inside the crystal." title="Effective mass: Carrier response to force inside the crystal.">m*</span></span></span></span></div><div class="explainer-box" aria-live="polite"></div></div></div></details></div>
+  </div>
+</section>
+
+<!-- Micro View Lens -->
+<div id="lens"><canvas id="micro"></canvas></div>
+<div id="lenstag">Tap to expand Micro View</div>
+
+<div id="ui">
+  <button id="back">← Back to Macro View</button>
+  <div class="legend" title="Schematic motion; not to scale. Electron flow is shown to the right, opposite its driving electric field."><span class="dot" id="atom-legend-dot" style="background:rgb(183,134,153)"></span>Atoms (Lattice)<br><span class="dot electron-dot" style="background:#6ee7ff"></span>Electrons (Flow →)</div>
+</div>
+
+<div id="micro-formulas" hidden aria-label="Microscopic equations">
+  <div class="live-readouts" aria-label="Calculated microscopic values"><div class="live-stat"><span>Phonon occupation N</span><strong id="micro-occupation">0.582 <small>per selected mode</small></strong></div><div class="live-stat"><span>Relaxation time τ</span><strong id="micro-tau">0.207 <small>ps</small></strong></div></div><div class="f-grid" id="micro-equations">
+<details class="acc-card" id="occupation-equation">
+      <summary>Phonon Occupation Equation</summary>
+      <div class="acc-content">
+        <div>
+          <div class="math-eq"><span class="equation-ink">
+            <i><span class="sym" data-info="N(ω, T): Phonon Occupation Number<br>The average number of phonons (quantized lattice vibrations) in a specific energy state.">N</span></i> = 
+            <div class="frac">
+              <div class="num">1</div>
+              <div class="den">
+                <i><span class="sym" data-info="Euler’s number&lt;br&gt;The constant approximately 2.71828, used in the exponential function." title="Euler’s number: The constant approximately 2.71828, used in the exponential function.">e</span></i><sup>
+                  <div class="frac inline">
+                    <div class="num">
+                      <i><span class="sym" data-info="ℏ: Reduced Planck Constant<br>A fundamental physical constant used in quantum mechanics.">ℏ</span></i><i><span class="sym" data-info="ω: Angular Frequency<br>Relates to the energy of the phonon mode (E = ℏω).">ω</span></i>
+                    </div>
+                    <div class="den">
+                      <i><span class="sym" data-info="k<sub>B</sub>: Boltzmann Constant<br>Converts absolute temperature into an energy scale: k_B T.">k<sub>B</sub></span></i><i><span class="sym" data-info="T: Absolute Temperature<br>The current temperature of the lattice in Kelvin. As T increases, N increases rapidly.">T</span></i>
+                    </div>
+                  </div>
+                </sup> − 1
+              </div>
+            </div>
+          </span></div>
+          <div id="symbol-explainer" class="explainer-box" aria-live="polite"></div>
+        </div>
+        
+
+      </div>
+    </details>    <!-- Expandable Interactive Equation -->
+    <details class="acc-card" id="tau-equation"><summary>Temperature & relaxation time</summary><div class="acc-content"><div><div class="math-eq"><span class="equation-ink"><span class="sym" data-info="Momentum relaxation time&lt;br&gt;Characteristic time for scattering to erase directed carrier momentum. Readout in picoseconds; 1 ps = 10⁻¹² s." title="Momentum relaxation time: Characteristic time for scattering to erase directed carrier momentum. Readout in picoseconds; 1 ps = 10⁻¹² s.">τ</span> ∝ <span class="sym" data-info="Absolute temperature&lt;br&gt;Temperature in kelvin. This phonon-limited model uses τ proportional to T⁻³ᐟ²." title="Absolute temperature: Temperature in kelvin. This phonon-limited model uses τ proportional to T⁻³ᐟ².">T</span><sup><span class="sym" data-info="Temperature exponent&lt;br&gt;In this simplified nondegenerate acoustic-phonon model, doubling temperature multiplies τ by about 0.35." title="Temperature exponent: In this simplified nondegenerate acoustic-phonon model, doubling temperature multiplies τ by about 0.35.">−3/2</span></sup></span></div><div class="explainer-box" aria-live="polite"></div></div></div></details>
+</div>
+</div>
+
+<section class="tab" id="t2" role="tabpanel" aria-labelledby="b2" style="display:none">
+ <div class="wrap trends-flow">
+  <section id="trends-plots" class="trend-section" aria-labelledby="plots-title"><div class="trend-heading"><span>01 / Explore</span><h2 id="plots-title">Plots</h2></div>
+   <article class="card trend-plot"><h3>Phonon occupation vs. temperature</h3><p>For a fixed vibration frequency, heating increases the average number of phonons in that mode. The marker follows the temperature slider.</p><svg id="occ-svg" viewBox="0 0 640 300" role="img" aria-label="Phonon occupation increases with temperature for one fixed vibration mode."></svg><p class="plot-status" id="occupation-status"></p><p class="note">Selected phonon energy: ℏω ≈ 25.9 meV. N counts occupation of one mode, not all phonons in the crystal. This plot is independent of electric field.</p></article>
+   <article class="card trend-plot"><h3>Mobility & relaxation time vs. temperature</h3><svg id="chart" viewBox="0 0 640 300" role="img" aria-label="Normalized mobility and relaxation time have identical decreasing temperature dependence."></svg><div class="plot-legend"><span style="--key:#6ee7ff">Mobility μ / μ(300 K)</span><span style="--key:#ffbd79">Relaxation time τ / τ(300 K) · dashed</span></div><div class="stats"><div class="stat"><div>Temperature</div><div id="sT">300 K</div></div><div class="stat"><div>Mobility μ · cm²/(V·s)</div><div id="sMu">1,400</div></div><div class="stat"><div>τ / τ(300 K)</div><div id="sTau">1.00</div></div></div></article>
+   <article class="card trend-plot"><h3>How directed momentum relaxes</h3><svg id="decay-chart" viewBox="0 0 640 300" role="img" aria-label="Directed momentum decays after the field is switched off. Higher temperatures have faster decay."></svg><div class="plot-legend reference-legend"><span style="--key:#6ea8ff">100 K</span><span style="--key:#b5bfd2">300 K</span><span style="--key:#ff8b64">500 K</span><span style="--key:#6ee7ff">Selected temperature</span></div><p class="plot-status" id="decay-status"></p></article>
+   <article class="card trend-plot"><h3>Drift speed vs. electric field</h3><p>Mobility is the slope of |v<sub>d</sub>| = μE. At higher temperature, phonon scattering makes the slope shallower. Move either slider to move the operating point.</p><svg id="drift-field-chart" viewBox="0 0 640 300" role="img" aria-label="Drift speed increases linearly with electric field. Hotter phonon-limited samples have smaller slopes."></svg><div class="plot-legend reference-legend"><span style="--key:#6ea8ff">100 K</span><span style="--key:#b5bfd2">300 K</span><span style="--key:#ff8b64">500 K</span><span style="--key:#6ee7ff">Selected temperature</span></div><p class="plot-status" id="drift-status"></p></article>
+  </section>
+  <section id="trends-descriptions" class="trend-section" aria-labelledby="descriptions-title"><div class="trend-heading"><span>02 / Understand</span><h2 id="descriptions-title">Concept descriptions</h2></div><div id="trend-description-list" class="description-stack"></div></section>
+  <section id="trends-hallway" class="card" aria-labelledby="hallway-title"><div class="trend-heading"><span>03 / Picture it</span><h2 id="hallway-title">The hallway analogy</h2></div><p>Imagine trying to move through a hallway of people. You represent a charge carrier; the people represent the lattice. Their movements can interrupt your progress along the hallway.</p><p>In the phonon-limited picture, a colder lattice has smaller thermal vibrations and less disruption. Heating strengthens those vibrations, so scattering interrupts directed progress more effectively. Random motion can become faster even while average progress along the hallway becomes slower.</p><p class="note">This analogy illustrates disrupted directed motion. Atoms still vibrate at 100 K, and real phonon scattering is a quantum interaction with collective lattice vibrations, rather than literal collisions with larger atoms.</p></section>
+  <section id="trends-nuance" class="card" aria-labelledby="nuance-title"><div class="trend-heading"><span>04 / Further considerations</span><h2 id="nuance-title">Does mobility always decrease with heating?</h2></div><p>Not always. These plots isolate phonon scattering, but charged impurities can also limit mobility. In an impurity-dominated regime, heating can increase mobility because faster carriers can be deflected less strongly by impurity fields. Comparing phonon-limited, impurity-limited, and combined mobility would therefore show competing trends: the combined mobility can rise at low temperature and fall when phonons dominate at higher temperature. Which behavior occurs depends on the material, carrier concentration, and temperature range.</p></section>
+ </div>
+</section>
+
+<!-- Tab 3: Interactive Scatter Runner Game -->
+<section class="tab" id="t3" role="tabpanel" aria-labelledby="b3" style="display:none">
+  <canvas id="game-canvas"></canvas>
+
+  <div id="game-ui-overlay">
+    <div class="game-card">
+      <div class="stage-badge" id="g-stage-badge">Stage 1 of 4</div>
+      <div class="stage-title" id="g-stage-title">Low Temperature (100 K)</div>
+      <div style="font-size: 11px; color: var(--mut); margin-top: 4px;"><span class="keyboard-hint">Press <b>Enter</b> to start, then use WASD or Arrow Keys to push the electron to the finish line on the right!</span><span class="touch-hint">Tap Start game, then hold the directional buttons to steer to the finish line on the right.</span></div><div class="game-actions"><button id="game-start" type="button">Start game (Enter)</button><button id="game-pause" type="button" disabled>Pause</button><span id="game-state" role="status">Ready</span></div>
+    </div>
+
+    <div class="game-card game-hud-stats">
+      <div class="gh-stat"><label>Crossing time</label><val id="gh-time">0.0s</val></div>
+      <div class="gh-stat"><label>Collisions</label><val id="gh-collisions" style="color:var(--hot)">0</val></div>
+      <div class="gh-stat"><label>Calculated τ</label><val id="gh-tau" style="color:var(--acc)">--</val></div>
+    </div>
+  </div>
+<div id="game-touch-pad" role="group" aria-label="Steer the electron"><button data-game-key="ArrowUp" class="pad-up" aria-label="Move up">↑</button><button data-game-key="ArrowLeft" class="pad-left" aria-label="Move left">←</button><button data-game-key="ArrowDown" class="pad-down" aria-label="Move down">↓</button><button data-game-key="ArrowRight" class="pad-right" aria-label="Move right">→</button></div>
+</section>
+
+<!-- Post-Game Results Modal -->
+<div id="game-modal">
+  <div class="modal-content">
+    <h2>Complete!</h2>
+    <p style="color:var(--mut); font-size:14px">Compare your crossing time, collisions, and gameplay relaxation-time estimate across all four temperatures.</p>
+    
+<div id="results-carousel" role="region" aria-roledescription="carousel" aria-label="Game results">
+ <div class="results-tabs" role="tablist" aria-label="Result pages">
+  <button id="results-tab-scattering" role="tab" aria-selected="true" aria-controls="results-page-scattering">Collisions & relaxation</button>
+  <button id="results-tab-time" role="tab" aria-selected="false" aria-controls="results-page-time" tabindex="-1">Crossing time</button>
+ </div>
+ <div id="results-viewport">
+  <section id="results-page-scattering" class="result-page" role="tabpanel" aria-labelledby="results-tab-scattering"><div class="results-grid"><div class="res-card"><div>100 K</div><div class="result-metrics" id="m-res-100">--</div></div><div class="res-card"><div>200 K</div><div class="result-metrics" id="m-res-200">--</div></div><div class="res-card"><div>300 K</div><div class="result-metrics" id="m-res-300">--</div></div><div class="res-card"><div>500 K</div><div class="result-metrics" id="m-res-500">--</div></div></div>
+   <div class="game-result-chart"><div class="chart-title">Gameplay relaxation time (τ) vs. temperature</div><svg id="game-chart-svg" viewBox="0 0 500 190" width="100%" role="img" aria-label="Gameplay interval estimate in each round"></svg></div>
+  </section>
+  <section id="results-page-time" class="result-page" role="tabpanel" aria-labelledby="results-tab-time" hidden><div class="results-grid"><div class="res-card"><div>100 K</div><div class="result-metrics" id="m-time-100">--</div></div><div class="res-card"><div>200 K</div><div class="result-metrics" id="m-time-200">--</div></div><div class="res-card"><div>300 K</div><div class="result-metrics" id="m-time-300">--</div></div><div class="res-card"><div>500 K</div><div class="result-metrics" id="m-time-500">--</div></div></div>
+   <p id="game-time-comparison" class="time-comparison"></p>
+   <div class="game-result-chart"><div class="chart-title">Time to cross the semiconductor vs. temperature</div><svg id="game-time-chart-svg" viewBox="0 0 500 190" width="100%" role="img" aria-label="Measured crossing time for each temperature round"></svg></div>
+  </section>
+ </div>
+ <div class="carousel-controls"><button id="results-prev" aria-label="Previous result page">←</button><span id="results-page-count" aria-live="polite">1 / 2</span><button id="results-next" aria-label="Next result page">→</button></div>
+</div>
+    <button class="restart-btn" id="m-restart">Play Again 🔄</button>
+  </div>
+</div>
+
+<div id="bar">
+  <div class="slider-group">
+    <label for="tr">Temp (T)</label>
+    <input id="tr" type="range" min="100" max="500" step="1" value="300" aria-label="Temperature in kelvin">
+    <output id="tv">300 K</output>
+  </div>
+  <div class="slider-group">
+    <label for="er">E-Field</label>
+    <input id="er" class="efield" type="range" min="0" max="10" step="0.1" value="4.0" aria-label="Electric Field Strength">
+    <output id="ev">4.0 V/m</output>
+  </div>
+</div>
+
+
+<div id="concept-labels" aria-label="Explore key concepts">
+<svg id="concept-arrows" aria-hidden="true"><defs><marker id="drawn-arrowhead" viewBox="0 0 6 6" refX="5.5" refY="3" markerWidth="5" markerHeight="5" markerUnits="userSpaceOnUse" orient="auto"><path d="M1 1 L5.5 3 L1 5" fill="none" stroke="#7dd8ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker></defs><path id="arrow-mobility" fill="none" stroke="#7dd8ff" stroke-width="1.1" stroke-linecap="round" marker-end="url(#drawn-arrowhead)"/><path id="arrow-phonon" fill="none" stroke="#7dd8ff" stroke-width="2" stroke-linecap="round" marker-end="url(#drawn-arrowhead)"/><path id="arrow-occupation" fill="none" stroke="#7dd8ff" stroke-width="2" stroke-linecap="round" marker-end="url(#drawn-arrowhead)"/><path id="arrow-relaxation" fill="none" stroke="#7dd8ff" stroke-width="2" stroke-linecap="round" marker-end="url(#drawn-arrowhead)"/><path id="arrow-scattering" fill="none" stroke="#7dd8ff" stroke-width="2" stroke-linecap="round" marker-end="url(#drawn-arrowhead)"/><path id="arrow-drift" fill="none" stroke="#7dd8ff" stroke-width="2" stroke-linecap="round" marker-end="url(#drawn-arrowhead)"/></svg><button class="concept-label" id="label-mobility" data-concept="mobility" aria-haspopup="dialog">what is carrier mobility?</button><button class="concept-label" id="label-phonon" data-concept="phonon" aria-haspopup="dialog">what is a phonon?</button><button class="concept-label" id="label-occupation" data-concept="occupation" aria-haspopup="dialog">what is phonon occupation?</button><button class="concept-label" id="label-relaxation" data-concept="relaxation" aria-haspopup="dialog">what is relaxation time?</button><button class="concept-label" id="label-scattering" data-concept="scattering" aria-haspopup="dialog">what is scattering?</button><button class="concept-label" id="label-drift" data-concept="drift" aria-haspopup="dialog">what is drift speed?</button><button class="concept-target" id="target-phonon" data-concept="phonon" aria-label="what is a phonon?" aria-haspopup="dialog"></button><button class="concept-target" id="target-scattering" data-concept="scattering" aria-label="what is scattering?" aria-haspopup="dialog"></button><button class="concept-target" id="target-drift" data-concept="drift" aria-label="what is drift speed?" aria-haspopup="dialog"></button></div><dialog id="concept-dialog" aria-labelledby="concept-title"><button id="close-concept" aria-label="Close explanation">×</button><h2 id="concept-title"></h2><div id="concept-body"></div></dialog>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Native HTML equations also work when opened offline.
+
+    // Interactive Symbols Setup
+    const symbols = document.querySelectorAll('.sym');
+
+    
+    symbols.forEach(sym => {
+        const showInfo = () => {
+            const card = sym.closest('.acc-card');
+            const explainer = card.querySelector('.explainer-box');
+            card.querySelectorAll('.sym').forEach(s => s.classList.remove('active'));
+            sym.classList.add('active');
+            explainer.innerHTML = sym.getAttribute('data-info');
+        };
+        // The definition appears beside the formula instead of a browser tooltip.
+        sym.removeAttribute('title');
+        sym.tabIndex = 0;
+        sym.setAttribute('role', 'button');
+        sym.addEventListener('focus', showInfo);
+        sym.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showInfo(); } });
+        sym.addEventListener('mouseover', showInfo);
+        sym.addEventListener('click', showInfo);
+    });
+});
+
+(function(){
+var $=function(s){return document.querySelector(s)};
+var T=300, E_FIELD=4.0, expanded=false, tab=1, W=0, H=0;
+var mu=function(t){return 1400*Math.pow(300/t,1.5)}; // Base mobility formula
+var mix=function(a,b,t){return a.map(function(v,i){return Math.round(v+(b[i]-v)*t)})};
+var rgb=function(c,a){return 'rgba('+c[0]+','+c[1]+','+c[2]+','+(a==null?1:a)+')'};
+
+var lens=$('#lens'),mic=$('#micro'),mc=mic.getContext('2d'),mac=$('#macro'),gc=mac.getContext('2d');
+var tag=$('#lenstag'),ui=$('#ui');
+
+/* ---------- macro view ---------- */
+var geo={};
+var pulseOffset = 0;
+
+function geom(){
+  var blockW = Math.min(W - 48, W*0.84, 1200);
+  var blockH = Math.max(100, Math.min(H*0.28, 280));
+  var cx = W / 2; 
+  // Larger sample fills the space above the bottom equation dock.
+  var cy = Math.max(155, H * 0.32); 
+  if(W<=650){var head=document.querySelector('header').getBoundingClientRect().bottom;var dock=$('#bottom-formulas').getBoundingClientRect().top;if(dock<=head)dock=H-300;var space=Math.max(110,dock-head);blockH=Math.max(64,Math.min(160,space*.45));cy=head+space*.47;}
+  geo={w:blockW, h:blockH, cx:cx, cy:cy};
+}
+
+function drawMacro(now, dt){
+  var t_norm = Math.pow((T-100)/400, 0.85); // normalized temp for color (0 to 1)
+  var e_norm = E_FIELD / 10; // normalized e-field (0 to 1)
+  
+  gc.clearRect(0,0,W,H);
+  
+  var bg=gc.createRadialGradient(geo.cx,geo.cy,10,geo.cx,geo.cy,Math.max(W,H)*0.6);
+  bg.addColorStop(0,'rgba(255,70,40,'+(0.02+0.15*t_norm)+')');
+  bg.addColorStop(1,'rgba(5,7,13,0)');
+  gc.fillStyle=bg;
+  gc.fillRect(0,0,W,H);
+
+  // --- Draw Tether from block to lens ---
+  var lx = +lens.dataset.cx, ly = +lens.dataset.cy;
+  var blockEdgeX = geo.cx + geo.w/2;
+  var blockEdgeY = geo.cy; 
+  
+  gc.beginPath();
+  gc.moveTo(blockEdgeX, blockEdgeY);
+  gc.bezierCurveTo(blockEdgeX + 80, blockEdgeY, lx - 80, ly, lx, ly);
+  gc.strokeStyle = 'rgba(110,231,255,0.3)';
+  gc.lineWidth = 1.5;
+  gc.setLineDash([4, 4]);
+  gc.stroke();
+  gc.setLineDash([]);
+
+  // --- Draw Large Silicon Block ---
+  var colorTop = mix([22,30,48], [160,45,35], t_norm);
+  var colorFront = mix([14,20,32], [100,20,15], t_norm);
+  
+  gc.save();
+  gc.shadowColor = 'rgba(255,60,40,'+(0.6*t_norm)+')';
+  gc.shadowBlur = 15 + 60*t_norm;
+  
+  gc.fillStyle = rgb(colorFront);
+  gc.beginPath();
+  gc.roundRect(geo.cx - geo.w/2, geo.cy - geo.h/2, geo.w, geo.h, 12);
+  gc.fill();
+  
+  gc.fillStyle = rgb(colorTop);
+  gc.beginPath();
+  gc.roundRect(geo.cx - geo.w/2 + 2, geo.cy - geo.h/2 + 2, geo.w - 4, geo.h - 4, 10);
+  gc.fill();
+  gc.restore();
+
+  // --- Draw Animated Flow Pulses inside the block ---
+  if (E_FIELD > 0) {
+    var relativeMobility = mu(T) / mu(300); 
+    var pulseSpeed = E_FIELD * relativeMobility * 1.5; 
+    var numPulses = 6; 
+    var pulseSpacing = geo.w / numPulses;
+    
+    pulseOffset += pulseSpeed * dt;
+    pulseOffset %= pulseSpacing; 
+
+    gc.save();
+    gc.beginPath();
+    gc.roundRect(geo.cx - geo.w/2 + 2, geo.cy - geo.h/2 + 2, geo.w - 4, geo.h - 4, 10);
+    gc.clip();
+
+    for(var i = -1; i <= numPulses; i++) {
+      var px = geo.cx - geo.w/2 + pulseOffset + (i * pulseSpacing);
+      var pulseWidth = 60 + E_FIELD * 4;
+      var grad = gc.createLinearGradient(px - pulseWidth/2, 0, px + pulseWidth/2, 0);
+      var pulseAlpha = 0.02 + e_norm*0.2; 
+      
+      grad.addColorStop(0, 'rgba(110,231,255,0)');
+      grad.addColorStop(0.5, `rgba(110,231,255,${pulseAlpha})`);
+      grad.addColorStop(1, 'rgba(110,231,255,0)');
+      
+      gc.fillStyle = grad;
+      gc.fillRect(px - pulseWidth/2, geo.cy - geo.h/2, pulseWidth, geo.h);
+      
+      var coreGrad = gc.createLinearGradient(px - 5, 0, px + 5, 0);
+      coreGrad.addColorStop(0, 'rgba(255,255,255,0)');
+      coreGrad.addColorStop(0.5, `rgba(255,255,255,${pulseAlpha * 0.7})`);
+      coreGrad.addColorStop(1, 'rgba(255,255,255,0)');
+      gc.fillStyle = coreGrad;
+      gc.fillRect(px - 5, geo.cy - geo.h/2, 10, geo.h);
+    }
+    gc.restore();
+  }
+
+  gc.font = '13px system-ui';
+  gc.fillStyle = '#8b97b3';
+  gc.textAlign = 'center';
+  gc.fillText('Semiconductor Lattice  ·  '+T+' K', geo.cx, geo.cy + geo.h/2 + 25);
+}
+
+function placeLens(){
+  var s = Math.max(110, Math.min(W*0.16, 140)); 
+  var lx = W - s/2 - 24; 
+  var ly = s/2 + envTop() + 66;
+  if(W<=650){s=Math.max(72,Math.min(W*.20,96));lx=W-s/2-12;ly=document.querySelector('header').getBoundingClientRect().bottom+s/2+8;} 
+  
+  lens.dataset.s = s;
+  lens.dataset.cx = lx;
+  lens.dataset.cy = ly;
+  
+  if(!expanded) setLens(false);
+}
+
+function envTop() { return parseInt(getComputedStyle(document.body).paddingTop) || 0; }
+
+function setLens(open){
+  var s=+lens.dataset.s, lx=+lens.dataset.cx, ly=+lens.dataset.cy;
+
+  if(open){
+    lens.style.left=0; lens.style.top=0; lens.style.width=W+'px'; lens.style.height=H+'px'; lens.style.borderRadius='0px';
+    mic.style.transform='translate(-50%,-50%) scale(1)';
+  } else {
+    lens.style.left=(lx-s/2)+'px'; lens.style.top=(ly-s/2)+'px'; lens.style.width=s+'px'; lens.style.height=s+'px'; lens.style.borderRadius=(s/2)+'px';
+    mic.style.transform='translate(-50%,-50%) scale('+(s/(Math.min(W,H)*0.7))+')';
+    tag.style.left=(lx-75)+'px'; tag.style.width='150px'; tag.style.top=(ly+s/2+12)+'px';
+  }
+}
+
+/* ---------- micro simulation ---------- */
+var S=80, cols=0, rows=0, els=[], collisionCounts={}, scatterAtom=null, lastScatterPick=-6000;
+
+function spawn(e,init){
+  e.x = init ? Math.random()*W : -20;
+  e.y = S*(0.5 + Math.floor(Math.random()*Math.max(1,rows-1))); 
+  if(e.y > H-S/2) e.y = S/2;
+  e.vx = E_FIELD > 0 ? 1 : 0; 
+  e.vy = 0; 
+  e.cd = 0; 
+  e.tr = []; 
+  return e;
+}
+
+function initMicro(){
+  mic.width=W; mic.height=H; mic.style.width=W+'px'; mic.style.height=H+'px';
+  cols=Math.ceil(W/S)+1; rows=Math.ceil(H/S)+1;
+  els=[]; collisionCounts={}; scatterAtom=null;
+  var n=Math.max(10, Math.min(30, Math.round(rows*1.8)));
+  for(var i=0; i<n; i++) els.push(spawn({},true));
+}
+
+function amp(){ return Math.max(0, (T - 80) * 0.015); }
+function rnd(i,j,k){var v=Math.sin(i*127.1+j*311.7+k*74.7)*43758.5453;return v-Math.floor(v)}
+
+function apos(i,j,now,A){
+  var speed = 0.006 * Math.sqrt(T/300);
+  return [
+    (i+0.5)*S + A*Math.sin(now*speed + rnd(i,j,1)*6.28),
+    (j+0.5)*S + A*Math.cos(now*speed*1.13 + rnd(i,j,2)*6.28)
+  ];
+}
+
+function drawMicro(now, dt){
+  var A=amp(), R_atom=9, R_scatter=R_atom + A*1.2; 
+  var vth = 1.5 + 4.5 * Math.sqrt((T-100)/400); 
+  var tt=(T-100)/400; 
+  var ac=mix([110,168,255],[255,100,50],tt);
+  
+  mc.fillStyle='#05070d'; mc.fillRect(0,0,W,H);
+  var g=mc.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*0.8);
+  g.addColorStop(0,'rgba(255,60,40,'+(0.02+0.15*tt)+')');g.addColorStop(1,'rgba(5,7,13,0)');
+  mc.fillStyle=g;mc.fillRect(0,0,W,H);
+  
+  var pos=[];
+  for(var j=0; j<rows; j++){ pos[j]=[]; for(var i=0; i<cols; i++) pos[j][i]=apos(i,j,now,A); }
+  
+  mc.strokeStyle=rgb(ac,0.1); mc.lineWidth=1; mc.beginPath();
+  for(j=0;j<rows;j++)for(i=0;i<cols;i++){
+    var p=pos[j][i];
+    if(i+1<cols){mc.moveTo(p[0],p[1]); mc.lineTo(pos[j][i+1][0],pos[j][i+1][1])}
+    if(j+1<rows){mc.moveTo(p[0],p[1]); mc.lineTo(pos[j+1][i][0],pos[j+1][i][1])}
+  }
+  mc.stroke();
+  
+  for(j=0;j<rows;j++)for(i=0;i<cols;i++){
+    p=pos[j][i];
+    mc.fillStyle=rgb(ac, 0.08 + 0.12*tt); mc.beginPath(); mc.arc(p[0],p[1], R_scatter, 0, 6.283); mc.fill();
+    mc.fillStyle=rgb(ac); mc.beginPath(); mc.arc(p[0],p[1], R_atom, 0, 6.283); mc.fill();
+    mc.fillStyle='rgba(255,255,255,0.4)'; mc.beginPath(); mc.arc(p[0]-2,p[1]-2, 2.5, 0, 6.283); mc.fill();
+  }
+  
+  els.forEach(function(e){
+    e.vx += E_FIELD * 0.06 * dt;
+    var damp = 0.92; e.vx *= damp; e.vy *= damp;
+    e.x += e.vx * dt; e.y += e.vy * dt;
+    
+    if(e.y < 4) { e.y = 4; e.vy = Math.abs(e.vy); }
+    if(e.y > H-4) { e.y = H-4; e.vy = -Math.abs(e.vy); }
+    if(e.x > W+40 || e.x < -60) { spawn(e, false); return; }
+    
+    if(e.cd > 0) e.cd -= dt; 
+    else {
+      var r0=Math.floor(e.y/S), c0=Math.floor(e.x/S), hit=false;
+      for(var jj=r0-1; jj<=r0+1 && !hit; jj++) {
+        for(var ii=c0-1; ii<=c0+1; ii++){
+          if(ii<0||jj<0||ii>=cols||jj>=rows) continue;
+          var q=pos[jj][ii], dx=e.x-q[0], dy=e.y-q[1];
+          if(dx*dx+dy*dy < R_scatter*R_scatter){
+            hit=true; collisionCounts[ii+","+jj]=(collisionCounts[ii+","+jj]||0)+1; var angle = Math.random()*6.283;
+            e.vx = Math.cos(angle) * vth; e.vy = Math.sin(angle) * vth;
+            e.cd = 12; e.flash = 14; break;
+          }
+        }
+      }
+    }
+    e.tr.push([e.x,e.y]); if(e.tr.length>12) e.tr.shift();
+    mc.strokeStyle='rgba(110,231,255,.45)'; mc.lineWidth=2.5; mc.beginPath();
+    e.tr.forEach(function(p,k){ k ? mc.lineTo(p[0],p[1]) : mc.moveTo(p[0],p[1]); }); mc.stroke();
+    var f=e.flash>0 ? (e.flash--,1) : 0;
+    mc.fillStyle = f ? '#ffffff' : '#6ee7ff'; mc.shadowColor = '#6ee7ff'; mc.shadowBlur = f ? 20 : 10;
+    mc.beginPath(); mc.arc(e.x, e.y, f?4.5:3.5, 0, 6.283); mc.fill(); mc.shadowBlur=0;
+  });
+}
+
+/* ---------- linked Temperature Trends plots ---------- */
+var trendColors=['#6ea8ff','#b5bfd2','#ff8b64'];
+var relaxationPs=function(t){return mu(t)*1e-4*(0.26*9.1093837139e-31)/1.602176634e-19*1e12;};
+function trendSvg(id,options){
+ var w=innerWidth<=650?Math.max(260,innerWidth-64):640,h=300,l=innerWidth<=650?49:64,r=20,top=22,b=49,pw=w-l-r,ph=h-top-b;
+ $('#'+id).setAttribute('viewBox','0 0 '+w+' '+h);
+ var x=function(v){return l+(v-options.xmin)/(options.xmax-options.xmin)*pw;};
+ var y=function(v){return top+ph-v/options.ymax*ph;};
+ var s='<title>'+options.title+'</title>';
+ for(var k=0;k<=4;k++){var v=options.ymax*k/4,Y=y(v);s+='<line x1="'+l+'" y1="'+Y+'" x2="'+(w-r)+'" y2="'+Y+'" stroke="#1c2438"/><text x="'+(l-9)+'" y="'+(Y+4)+'" text-anchor="end">'+(v<2?v.toFixed(2):v.toFixed(1))+'</text>';}
+ for(k=0;k<=4;k++){v=options.xmin+(options.xmax-options.xmin)*k/4;var X=x(v);s+='<text x="'+X+'" y="'+(h-b+19)+'" text-anchor="middle">'+(options.xmax<=4?v.toFixed(1):v.toFixed(0))+'</text>';}
+ s+='<text x="'+(l+pw/2)+'" y="'+(h-7)+'" text-anchor="middle">'+options.xlabel+'</text><text transform="translate(16 '+(top+ph/2)+') rotate(-90)" text-anchor="middle">'+options.ylabel+'</text>';
+ (options.guides||[]).forEach(function(a){s+='<line x1="'+l+'" x2="'+(w-r)+'" y1="'+y(a)+'" y2="'+y(a)+'" stroke="#7c8aa4" stroke-dasharray="3 5"/>';});
+ options.curves.forEach(function(c){var path='';for(var i=0;i<=180;i++){var xx=options.xmin+(options.xmax-options.xmin)*i/180;path+=(i?'L':'M')+x(xx).toFixed(2)+' '+y(c.fn(xx)).toFixed(2);}s+='<path d="'+path+'" fill="none" stroke="'+c.color+'" stroke-width="'+(c.width||2)+'"'+(c.dash?' stroke-dasharray="'+c.dash+'"':'')+'/>';});
+ (options.points||[]).forEach(function(p){s+='<line x1="'+x(p.x)+'" x2="'+x(p.x)+'" y1="'+y(p.y)+'" y2="'+(h-b)+'" stroke="'+(p.color||'#6ee7ff')+'" stroke-opacity=".4" stroke-dasharray="4 5"/><circle cx="'+x(p.x)+'" cy="'+y(p.y)+'" r="4.5" fill="'+(p.color||'#6ee7ff')+'" stroke="#05070d" stroke-width="1.5"/>';});
+ $('#'+id).innerHTML=s;
+}
+function buildCharts(){renderTrendPlots();}
+function renderTrendPlots(){
+ var norm=function(t){return Math.pow(300/t,1.5);},occ=function(t){return 1/Math.expm1(300/t);};
+ trendSvg('occ-svg',{title:'Phonon occupation vs temperature',xmin:100,xmax:500,ymax:1.4,xlabel:'Temperature (K)',ylabel:'Average occupation N',curves:[{fn:occ,color:'#ff8b64',width:2.5}],points:[{x:T,y:occ(T)}]});
+ trendSvg('chart',{title:'Normalized mobility and relaxation time',xmin:100,xmax:500,ymax:6,xlabel:'Temperature (K)',ylabel:'Value relative to 300 K',curves:[{fn:norm,color:'#6ee7ff',width:4},{fn:norm,color:'#ffbd79',width:2,dash:'6 5'}],points:[{x:T,y:norm(T)}]});
+ var decayCurves=[100,300,500].map(function(temp,i){return {fn:function(time){return Math.exp(-time/relaxationPs(temp));},color:trendColors[i]};});
+ decayCurves.push({fn:function(time){return Math.exp(-time/relaxationPs(T));},color:'#6ee7ff',width:3});
+ trendSvg('decay-chart',{title:'Normalized directed momentum after field switch-off',xmin:0,xmax:4,ymax:1,xlabel:'Time after field switch-off (ps)',ylabel:'Momentum / initial momentum',curves:decayCurves,guides:[Math.exp(-1)],points:[{x:relaxationPs(T),y:Math.exp(-1)}]});
+ var driftCurves=[100,300,500].map(function(temp,i){return {fn:function(field){return mu(temp)*1e-4*field;},color:trendColors[i]};});
+ driftCurves.push({fn:function(field){return mu(T)*1e-4*field;},color:'#6ee7ff',width:3});
+ trendSvg('drift-field-chart',{title:'Drift speed vs electric field at different temperatures',xmin:0,xmax:10,ymax:8,xlabel:'Electric field magnitude (V/m)',ylabel:'Drift speed (m/s)',curves:driftCurves,points:[{x:E_FIELD,y:mu(T)*1e-4*E_FIELD}]});
+ $('#sT').textContent=T+' K';$('#sMu').textContent=Math.round(mu(T)).toLocaleString('en-US');$('#sTau').textContent=norm(T).toFixed(2);
+ $('#occupation-status').textContent=T+' K → N = '+occ(T).toFixed(3)+' phonons per selected mode on average.';
+ $('#decay-status').textContent='At '+T+' K: τ = '+relaxationPs(T).toFixed(3)+' ps. Initial drift at '+E_FIELD.toFixed(1)+' V/m: '+(mu(T)*1e-4*E_FIELD).toFixed(3)+' m/s.';
+ $('#drift-status').textContent=T+' K · '+E_FIELD.toFixed(1)+' V/m → drift speed '+(mu(T)*1e-4*E_FIELD).toFixed(3)+' m/s.';
+}
+
+function updateReadouts(){
+  var mobility = mu(T);
+  var relaxation = mobility * 1e-4 * (0.26 * 9.1093837139e-31) / 1.602176634e-19;
+  var occupation = 1 / Math.expm1(300/T);
+  $('#macro-mobility').innerHTML = Math.round(mobility).toLocaleString('en-US')+' <small>cm²/(V·s)</small>';
+  $('#macro-drift').innerHTML = (mobility * 1e-4 * E_FIELD).toFixed(3)+' <small>m/s</small>';
+  $('#micro-occupation').innerHTML = occupation.toFixed(3)+' <small>per selected mode</small>';
+  $('#micro-tau').innerHTML = (relaxation*1e12).toFixed(3)+' <small>ps</small>';
+  $('#atom-legend-dot').style.background = rgb(mix([110,168,255],[255,100,50],(T-100)/400));
+}
+
+function updateCharts(){updateReadouts();renderTrendPlots();}
+
+/* ---------- clickable concept explanations ---------- */
+var conceptContent = {"mobility": ["Carrier mobility", "<p>Mobility measures how strongly a carrier’s average motion responds to an electric field.</p><p>It describes how easily an electric field can produce directed motion through a material.</p><p>All else held constant, higher mobility means faster drift.</p><p>Mobility is a response property, rather than a speed itself. A material can have high mobility while its carriers have zero average drift when no electric field is applied.</p>"], "drift": ["Drift speed", "<p>Carriers have considerable microscopic motion even without an electric field. Their motions point in many directions, so they largely cancel when averaged.</p><p>An electric field adds a directional bias. The resulting average velocity is drift velocity, and its magnitude is drift speed.</p><p>Electrons drift opposite the electric field while holes drift along it.</p><p>This net movement of charge produces electric current.</p><p>However, current depends on both how many carriers are available and how quickly they drift.</p><p>At fixed carrier concentration and field, lower mobility means lower current.</p>"], "phonon": ["Phonons", "<p>Atoms in a crystal vibrate around their equilibrium positions. Because neighboring atoms are coupled through their bonds, the crystal supports collective vibration patterns.</p><p>A phonon is one quantum of energy in a collective lattice vibration. A phonon in a vibration mode of angular frequency ω carries energy</p><div class=\"popup-equation\">ε = ℏω</div>"], "occupation": ["Phonon occupation", "<p>Phonon occupation is the average number of phonons in a selected mode.</p><p>At fixed frequency, raising temperature increases this occupation and therefore the average vibrational energy in that mode.</p><p>More phonons generally provide more opportunities for carrier–phonon scattering.</p><p>The exact scattering rate also depends on the interaction strength and available carrier states.</p>"], "relaxation": ["Momentum relaxation time", "<p>Momentum relaxation time, τ, describes how quickly scattering erases the carriers’ average directed momentum.</p><div class=\"popup-equation\">⟨p(t)⟩ = ⟨p(0)⟩ e<sup>−t/τ</sup></div><p>After one relaxation time, approximately 37% of the initial average directed momentum remains.</p><p>The carriers have not stopped moving. Their motion has become less directionally aligned.</p><p>Relaxation time is related to the time between scattering events, but they are not always equal. A small deflection preserves much of a carrier’s direction, whereas a large deflection disrupts it strongly. Momentum relaxation time accounts for how effectively the scattering destroys directed motion.</p>"], "scattering": ["Scattering", "<p>Scattering is an interaction that changes a charge carrier’s momentum—its direction of motion, its speed, or both.</p><p>In phonon scattering, electrons or holes interact with lattice vibrations. The vibrating atoms create a changing electrical potential that can redirect carriers and exchange energy with them.</p><p>The electric field builds a directional bias in carrier motion, while scattering interrupts the directed motion that the field builds. Frequent momentum-disrupting scattering therefore produces a shorter relaxation time and lower mobility.</p>"]};
+// Reuse popup content so the collected descriptions stay consistent.
+$('#trend-description-list').innerHTML=['phonon','occupation','scattering','relaxation','mobility','drift'].map(function(key,index){return '<article class="card" id="description-'+key+'"><h3>'+(index+1)+'. '+conceptContent[key][0]+'</h3>'+conceptContent[key][1]+'</article>';}).join('');
+var conceptDialog=$('#concept-dialog');
+function openConcept(key){var entry=conceptContent[key];if(!entry)return;$('#concept-title').textContent=entry[0];$('#concept-body').innerHTML=entry[1];if(!conceptDialog.open)conceptDialog.showModal();}
+document.querySelectorAll('[data-concept]').forEach(function(button){button.addEventListener('click',function(e){e.stopPropagation();openConcept(button.dataset.concept);});});
+$('#close-concept').addEventListener('click',function(){conceptDialog.close();});
+conceptDialog.addEventListener('click',function(e){if(e.target!==conceptDialog)return;var r=conceptDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)conceptDialog.close();});
+[['macro-drift','drift'],['macro-mobility','mobility'],['micro-occupation','occupation'],['micro-tau','relaxation']].forEach(function(pair){var box=$('#'+pair[0]).closest('.live-stat');box.dataset.concept=pair[1];box.tabIndex=0;box.setAttribute('role','button');box.setAttribute('aria-haspopup','dialog');box.setAttribute('aria-label','Open explanation: '+conceptContent[pair[1]][0]);box.addEventListener('click',function(){openConcept(pair[1]);});box.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();openConcept(pair[1]);}});});
+function showLabel(key,visible,tx,ty,lx,ly){var label=$('#label-'+key),path=$('#arrow-'+key),target=$('#target-'+key);label.hidden=!visible;path.style.display=visible?'':'none';if(target)target.hidden=!visible;if(!visible)return;
+ var maxWidth=W<650?150:175;lx=Math.max(8,Math.min(W-maxWidth-8,lx));ly=Math.max(expanded?126:66,Math.min(H-65,ly));label.style.left=lx+'px';label.style.top=ly+'px';
+ var r=label.getBoundingClientRect(),sx=Math.max(r.left,Math.min(r.right,tx)),sy=Math.max(r.top,Math.min(r.bottom,ty));
+ if(tx>=r.left&&tx<=r.right&&ty>=r.top&&ty<=r.bottom){sy=ty<(r.top+r.bottom)/2?r.top:r.bottom;}
+ var dx=tx-sx,dy=ty-sy,len=Math.sqrt(dx*dx+dy*dy)||1;
+ // Keep the whole arrow short, with a final tangent aimed directly at its target.
+ var length=Math.min(28,len),ux=dx/len,uy=dy/len; sx=tx-ux*length;sy=ty-uy*length;
+ var bend=3,cx=(sx+tx)/2-uy*bend,cy=(sy+ty)/2+ux*bend;
+ path.setAttribute('d','M '+sx+' '+sy+' Q '+cx+' '+cy+' '+(tx-ux*5)+' '+(ty-uy*5)+' L '+tx+' '+ty);
+ if(target){target.style.left=tx+'px';target.style.top=ty+'px';}}
+
+function updateAnnotations(now){$('#concept-labels').hidden=tab!==1;if(tab!==1)return;
+ if(expanded){var dock=$('#micro-formulas').getBoundingClientRect(),maxRow=Math.max(2,Math.floor((dock.top-65)/S-.5)),row=Math.min(maxRow,Math.max(2,Math.floor(H*.28/S-.5)));
+ var pi=Math.max(2,Math.min(cols-2,Math.floor(W*.62/S-.5))),pp=apos(pi,row,now,amp());showLabel('phonon',true,pp[0],pp[1],pp[0]+12,pp[1]-38);
+ if(!scatterAtom||now-lastScatterPick>5000){scatterAtom=[0,2];var best=-1;Object.keys(collisionCounts).forEach(function(key){var ij=key.split(',').map(Number);if(ij[0]<=1&&ij[1]>=2&&ij[1]<=maxRow&&collisionCounts[key]>best){best=collisionCounts[key];scatterAtom=ij;}});lastScatterPick=now;}
+ var sp=apos(scatterAtom[0],scatterAtom[1],now,amp());showLabel('scattering',true,sp[0],sp[1],sp[0]+22,sp[1]+18);
+ [['occupation','micro-occupation'],['relaxation','micro-tau']].forEach(function(pair){var box=$('#'+pair[1]).closest('.live-stat').getBoundingClientRect();showLabel(pair[0],true,box.left+box.width*.5,box.top+5,box.left+box.width*.5-74,box.top-30);});showLabel('drift',false);showLabel('mobility',false);
+ }else{['phonon','occupation','relaxation','scattering'].forEach(function(key){showLabel(key,false);});var dr=$('#macro-drift').closest('.live-stat').getBoundingClientRect();showLabel('drift',true,dr.left+dr.width*.5,dr.top+4,dr.left+dr.width*.5-70,dr.top-30);var mr=$('#macro-mobility').closest('.live-stat').getBoundingClientRect();showLabel('mobility',true,mr.left+mr.width*.5,mr.top+4,mr.left+mr.width*.5-70,mr.top-30);}}
+
+/* ---------- 🎮 SCATTER RUNNER GAME LOGIC ---------- */
+var gameCanvas = $('#game-canvas'), gctx = gameCanvas.getContext('2d');
+var currentStage = 1;
+var stageTemps = [100, 200, 300, 500];
+var stageTitles = ["Low Temperature (100 K)", "Cool Temperature (200 K)", "Room Temperature (300 K)", "High Temperature (500 K)"];
+var gameActive = false;
+var gamePaused=false, pauseStartedAt=0, gamePhaseTime=0;
+var keys = {};
+
+var player = { x: 50, y: 0, vx: 0, vy: 0, radius: 6 };
+var gameStartTime = 0;
+var currentStageTime = 0;
+var collisionsCount = 0;
+var stageResults = [];
+
+var gameAtoms = [];
+var gCols = 0, gRows = 0, gSpacing = 90;
+
+// Fill the whole play area with atoms (rebuilt on every resize so the canvas is never stretched)
+function layoutGameLattice() {
+  gameCanvas.width = W;
+  gameCanvas.height = H;
+  gCols = Math.max(2, Math.floor((W - 220) / gSpacing) + 1);
+  gRows = Math.max(2, Math.floor((H - 30) / gSpacing) + 1);
+  var startX = 110 + ((W - 220) - (gCols - 1) * gSpacing) / 2;
+  var startY = (H - (gRows - 1) * gSpacing) / 2;
+  gameAtoms = [];
+  for (var r = 0; r < gRows; r++) {
+    for (var c = 0; c < gCols; c++) {
+      var bx = startX + c * gSpacing, by = startY + r * gSpacing;
+      gameAtoms.push({ baseX: bx, baseY: by, x: bx, y: by, flash: 0 });
+    }
+  }
+  player.x = Math.min(player.x, W - 80);
+  player.y = Math.max(60, Math.min(H - 60, player.y));
+}
+
+function initGameStage(stageNum) {
+  currentStage = stageNum;
+  gameCanvas.width = W;
+  gameCanvas.height = H;
+  
+  player.x = 60;
+  player.y = H / 2;
+  player.vx = 0;
+  player.vy = 0;
+  
+  collisionsCount = 0;
+  currentStageTime=0;gamePaused=false;pauseStartedAt=0;gamePhaseTime=0;
+  gameStartTime = performance.now();
+  
+  $('#g-stage-badge').textContent = `Stage ${stageNum} of ${stageTemps.length}`;
+  $('#g-stage-title').textContent = stageTitles[stageNum - 1];
+  $('#gh-collisions').textContent = '0';
+  $('#gh-time').textContent = '0.0s';
+  $('#gh-tau').textContent = '--';
+  
+  layoutGameLattice();
+  gameActive = true;
+  updateGameControls();
+}
+
+// Per-round difficulty: vibration amplitude (px) and scattering radius (px). The 200 K and 300 K rounds
+// are tuned so collisions climb steadily with temperature and the tau-vs-T graph shows a clear trend.
+var GAME_DIFF = { 100:{amp:0.8,R:13}, 200:{amp:11,R:29.5}, 300:{amp:14.5,R:30.5}, 500:{amp:16.8,R:33.8} };
+function gameParams(temp) {
+  var d = GAME_DIFF[temp];
+  if (d) return d;
+  var a = Math.max(0, (temp - 80) * 0.04);
+  return { amp: a, R: 12 + a * 1.3 };
+}
+function updateGame(now, dt) {
+  if(!gameActive||gamePaused) return;
+  gamePhaseTime+=dt*16.7;
+
+  var temp = stageTemps[currentStage - 1];
+  var gp = gameParams(temp);
+  var amplitude = gp.amp;
+  var scatterRadius = gp.R;
+
+  // Player controls & E-field force
+  var pushForce = 0.45;
+  if(keys['ArrowRight'] || keys['KeyD']) player.vx += pushForce;
+  if(keys['ArrowLeft'] || keys['KeyA']) player.vx -= pushForce;
+  if(keys['ArrowUp'] || keys['KeyW']) player.vy -= pushForce;
+  if(keys['ArrowDown'] || keys['KeyS']) player.vy += pushForce;
+
+  // Drift push rightwards
+  player.vx += 0.1;
+  
+  player.vx *= 0.94;
+  player.vy *= 0.94;
+  
+  player.x += player.vx * dt;
+  player.y += player.vy * dt;
+
+  // Boundary checks
+  var upperBound=W<=650?document.querySelector('#game-ui-overlay').getBoundingClientRect().bottom+10:60;
+  if(player.y < upperBound) { player.y = upperBound; player.vy *= -0.5; }
+  if(player.y > H - 60) { player.y = H - 60; player.vy *= -0.5; }
+  if(player.x < 30) { player.x = 30; player.vx = 0; }
+
+  // Update Atom Vibrations & Collisions
+  var speed = 0.008 * Math.sqrt(temp/300);
+  gameAtoms.forEach(function(a, idx) {
+    a.x = a.baseX + amplitude * Math.sin(gamePhaseTime * speed + idx);
+    a.y = a.baseY + amplitude * Math.cos(gamePhaseTime * speed * 1.2 + idx);
+
+    // Physics Bouncing Collision
+    var dx = player.x - a.x;
+    var dy = player.y - a.y;
+    var dist = Math.sqrt(dx*dx + dy*dy);
+    var minDist = player.radius + scatterRadius;
+
+    if(dist < minDist) {
+      collisionsCount++;
+      a.flash = 12;
+
+      // Calculate Normal Vector & Bounce Velocity
+      var nx = dx / dist;
+      var ny = dy / dist;
+      var dot = player.vx * nx + player.vy * ny;
+      
+      player.vx = (player.vx - 2 * dot * nx) * 0.85;
+      player.vy = (player.vy - 2 * dot * ny) * 0.85;
+      
+      // Separate particles
+      var overlap = minDist - dist;
+      player.x += nx * overlap;
+      player.y += ny * overlap;
+    }
+
+    if(a.flash > 0) a.flash--;
+  });
+
+  // Track HUD Stats
+  currentStageTime = (performance.now() - gameStartTime) / 1000;
+  $('#gh-time').textContent = currentStageTime.toFixed(1) + 's';
+  $('#gh-collisions').textContent = collisionsCount;
+  
+  var calculatedTau = collisionsCount > 0 ? (currentStageTime / collisionsCount).toFixed(2) + 's' : '∞';
+  $('#gh-tau').textContent = calculatedTau;
+
+  // Check Finish Line Goal
+  if(player.x >= W - 60) {
+    gameActive = false;
+    stageResults.push({
+      stage: currentStage,
+      temp: temp,
+      time: currentStageTime,
+      collisions: collisionsCount,
+      tau: collisionsCount > 0 ? (currentStageTime / collisionsCount) : currentStageTime
+    });
+
+    if(currentStage < stageTemps.length) {
+      initGameStage(currentStage + 1);
+    } else {
+      showPostGameResults();
+    }
+  }
+}
+
+function renderGame() {
+  gctx.fillStyle = '#05070d';
+  gctx.fillRect(0, 0, W, H);
+
+  var temp = stageTemps[currentStage - 1];
+  var tt = (temp - 100) / 400;
+  var atomColor = mix([110,168,255],[255,100,50],tt);
+
+  // Draw Finish Line Zone
+  gctx.fillStyle = 'rgba(110,231,255,0.12)';
+  gctx.fillRect(W - 70, 0, 70, H);
+  gctx.strokeStyle = 'rgba(110,231,255,0.4)';
+  gctx.setLineDash([8, 8]);
+  gctx.beginPath();
+  gctx.moveTo(W - 70, 0); gctx.lineTo(W - 70, H);
+  gctx.stroke();
+  gctx.setLineDash([]);
+
+  // Draw Atoms
+  gameAtoms.forEach(function(a) {
+    var rScatter = gameParams(temp).R;
+    
+    gctx.fillStyle = rgb(atomColor, 0.12 + (a.flash ? 0.3 : 0));
+    gctx.beginPath(); gctx.arc(a.x, a.y, rScatter, 0, 6.283); gctx.fill();
+
+    gctx.fillStyle = a.flash ? '#ffffff' : rgb(atomColor);
+    gctx.beginPath(); gctx.arc(a.x, a.y, 10, 0, 6.283); gctx.fill();
+  });
+
+  // Draw Player Electron
+  gctx.fillStyle = '#6ee7ff';
+  gctx.shadowColor = '#6ee7ff';
+  gctx.shadowBlur = 15;
+  gctx.beginPath(); gctx.arc(player.x, player.y, player.radius, 0, 6.283); gctx.fill();
+  gctx.shadowBlur = 0;
+}
+
+function drawGameResultsPlot(id,metric,label){
+ var unit=metric==='collisions'?'':' s';
+ var sw=innerWidth<=650?Math.max(260,Math.min(500,innerWidth-78)):500,sh=190,l=48,r=24,top=26,bottom=42;
+ $('#'+id).setAttribute('viewBox','0 0 '+sw+' '+sh);
+ var plotted=metric==='tau'?stageResults.filter(function(result){return result.collisions>0;}):stageResults;
+ var maxValue=Math.max.apply(null,plotted.map(function(result){return result[metric];}).concat([1]))*1.2;
+ var x=function(temp){return l+(temp-stageTemps[0])/(stageTemps[stageTemps.length-1]-stageTemps[0])*(sw-l-r);};
+ var y=function(value){return top+(1-value/maxValue)*(sh-top-bottom);};
+ var svg='<title>'+label+'</title>';
+ for(var i=0;i<=4;i++){var val=maxValue*i/4,Y=y(val);svg+='<line x1="'+l+'" x2="'+(sw-r)+'" y1="'+Y+'" y2="'+Y+'" stroke="#1c2438"/><text x="'+(l-7)+'" y="'+(Y+4)+'" text-anchor="end">'+(metric==='collisions'?Math.round(val):val.toFixed(1))+'</text>';}
+ svg+='<text x="'+(sw/2)+'" y="'+(sh-6)+'" text-anchor="middle">Temperature (K)</text><text x="'+l+'" y="13">'+label+(unit?' (s)':'')+'</text>';
+ var points=[];
+ plotted.forEach(function(result){var px=x(result.temp),py=y(result[metric]);points.push(px+','+py);svg+='<circle cx="'+px+'" cy="'+py+'" r="4.5" fill="#6ee7ff"/><text x="'+px+'" y="'+(sh-bottom+19)+'" text-anchor="middle">'+result.temp+'</text><text x="'+px+'" y="'+(py-9)+'" text-anchor="middle">'+(metric==='collisions'?result[metric]:result[metric].toFixed(2))+unit+'</text>';});
+ svg+='<polyline points="'+points.join(' ')+'" fill="none" stroke="#ff8b64" stroke-width="2" stroke-dasharray="4 3"/>';
+ if(!plotted.length)svg+='<text x="'+sw/2+'" y="90" text-anchor="middle">No collisions recorded.</text>';
+ $('#'+id).innerHTML=svg;
+}
+function showPostGameResults() {
+ // Results are available only after four distinct finish-line crossings in sequence.
+ if(stageResults.length!==stageTemps.length||!stageResults.every(function(result,i){return result.stage===i+1&&result.temp===stageTemps[i];}))return;
+ setResultsPage(0);
+ stageResults.forEach(function(result){$('#m-res-'+result.temp).innerHTML='<span>Collisions</span><span>'+result.collisions+'</span><span>Gameplay τ</span><span>'+(result.collisions>0?result.tau.toFixed(2)+' s':'—')+'</span>';$('#m-time-'+result.temp).innerHTML='<span>Crossing time</span><span>'+result.time.toFixed(2)+' s</span>';});
+ var first=stageResults[0],last=stageResults[stageResults.length-1],change=last.time-first.time;
+ if(first.time>0){var percent=Math.abs(change/first.time*100);$('#game-time-comparison').textContent='From '+first.temp+' K to '+last.temp+' K, crossing time '+(Math.abs(change)<0.005?'stayed approximately the same.':(change>0?'increased':'decreased')+' by '+Math.abs(change).toFixed(2)+' s ('+percent.toFixed(1)+'%).');}
+ else $('#game-time-comparison').textContent='Crossing times are shown for all '+stageResults.length+' rounds.';
+ drawGameResultsPlot('game-time-chart-svg','time','Crossing time');
+ drawGameResultsPlot('game-chart-svg','tau','Gameplay τ');
+ updateGameControls();
+ $('#game-modal').classList.add('show');
+}
+
+var resultsPage=0;
+function setResultsPage(index){resultsPage=(index+2)%2;['scattering','time'].forEach(function(key,i){$('#results-page-'+key).hidden=i!==resultsPage;$('#results-tab-'+key).setAttribute('aria-selected',i===resultsPage?'true':'false');$('#results-tab-'+key).tabIndex=i===resultsPage?0:-1;});$('#results-page-count').textContent=(resultsPage+1)+' / 2';}
+$('#results-prev').addEventListener('click',function(){setResultsPage(resultsPage-1);});
+$('#results-next').addEventListener('click',function(){setResultsPage(resultsPage+1);});
+['scattering','time'].forEach(function(key,i){$('#results-tab-'+key).addEventListener('click',function(){setResultsPage(i);});$('#results-tab-'+key).addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();setResultsPage(resultsPage+1);$('#results-tab-'+(resultsPage?'time':'scattering')).focus();}});});
+var resultsSwipeX=null;
+$('#results-viewport').addEventListener('pointerdown',function(e){resultsSwipeX=e.clientX;});
+$('#results-viewport').addEventListener('pointerup',function(e){if(resultsSwipeX!==null&&Math.abs(e.clientX-resultsSwipeX)>55)setResultsPage(resultsPage+(e.clientX<resultsSwipeX?1:-1));resultsSwipeX=null;});
+$('#results-viewport').addEventListener('pointercancel',function(){resultsSwipeX=null;});
+
+function updateGameControls(){
+ document.querySelectorAll('[data-game-key]').forEach(function(button){button.disabled=!gameActive||gamePaused;});
+ $('#game-start').disabled=gameActive;
+ $('#game-pause').disabled=!gameActive;
+ $('#game-pause').textContent=gamePaused?'Resume':'Pause';
+ $('#game-pause').setAttribute('aria-pressed',gamePaused?'true':'false');
+ $('#game-state').textContent=gameActive?(gamePaused?'Paused':'Running'):(stageResults.length===stageTemps.length?'Complete':'Ready');
+}
+function resetGame(){
+ keys={};stageResults=[];gamePaused=false;pauseStartedAt=0;currentStageTime=0;collisionsCount=0;
+ $('#game-modal').classList.remove('show');setResultsPage(0);
+ stageTemps.forEach(function(temp){$('#m-res-'+temp).textContent='--';$('#m-time-'+temp).textContent='--';});
+ ['game-chart-svg','game-time-chart-svg'].forEach(function(id){$('#'+id).innerHTML='';});
+ $('#game-time-comparison').textContent='';
+ initGameStage(1);gameActive=false;updateGameControls();renderGame();
+}
+function startGame(){if(gameActive)return;resetGame();gameStartTime=performance.now();gameActive=true;updateGameControls();}
+function pauseGame(){if(!gameActive||gamePaused)return;gamePaused=true;pauseStartedAt=performance.now();keys={};updateGameControls();}
+function resumeGame(){if(!gameActive||!gamePaused)return;gameStartTime+=performance.now()-pauseStartedAt;gamePaused=false;pauseStartedAt=0;keys={};updateGameControls();}
+document.querySelectorAll('[data-game-key]').forEach(function(button){
+ var release=function(){keys[button.dataset.gameKey]=false;button.setAttribute('aria-pressed','false');};
+ button.addEventListener('pointerdown',function(e){if(!gameActive||gamePaused)return;e.preventDefault();keys[button.dataset.gameKey]=true;button.setAttribute('aria-pressed','true');if(button.setPointerCapture)button.setPointerCapture(e.pointerId);});
+ ['pointerup','pointercancel','lostpointercapture'].forEach(function(event){button.addEventListener(event,release);});
+});
+$('#game-start').addEventListener('click',startGame);
+$('#game-pause').addEventListener('click',function(){if(gamePaused)resumeGame();else pauseGame();});
+$('#m-restart').onclick=resetGame;
+document.addEventListener('visibilitychange',function(){if(document.hidden&&tab===3&&gameActive&&!gamePaused)pauseGame();});
+
+addEventListener('keydown', function(e) { if(tab!==3||!gameActive||gamePaused)return; keys[e.code] = true; if(['ArrowRight','ArrowLeft','ArrowUp','ArrowDown','KeyW','KeyA','KeyS','KeyD'].includes(e.code))e.preventDefault(); });
+addEventListener('keydown', function(e){
+  if(tab!==3||e.key!=='Enter'||e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(!gameActive){ e.preventDefault(); e.stopPropagation(); if(document.activeElement&&document.activeElement.blur)document.activeElement.blur(); startGame(); }
+  else if(gamePaused){ e.preventDefault(); e.stopPropagation(); resumeGame(); }
+}, true);
+addEventListener('keyup', function(e) { if(tab===3)keys[e.code] = false; });
+addEventListener('blur',function(){keys={};});
+
+/* ---------- wiring ---------- */
+function resize(){
+  W=innerWidth; H=innerHeight; var r=Math.min(devicePixelRatio||1,2);
+  mac.width=W*r; mac.height=H*r; gc.setTransform(r,0,0,r,0,0);
+  document.documentElement.style.setProperty('--app-header-bottom',document.querySelector('header').getBoundingClientRect().bottom+'px');
+  document.documentElement.style.setProperty('--control-clearance',(H-$('#bar').getBoundingClientRect().top+8)+'px');
+  geom(); initMicro(); placeLens(); if(expanded) setLens(true);
+  layoutGameLattice(); if(tab===3) renderGame();
+  renderTrendPlots();
+  document.documentElement.style.setProperty('--control-clearance',(H-$('#bar').getBoundingClientRect().top+8)+'px');
+}
+function setTab(n){
+  if($('#concept-dialog').open) $('#concept-dialog').close();
+  if(n!=1 && expanded) collapse();
+  tab=n;
+  keys={};
+  $('#b3').setAttribute('aria-selected', n==3);
+  $('#b3').classList.toggle('on', n==3);
+  $('#t3').style.display=n==3?'':'none';
+  $('#bar').style.display=n==3?'none':'';
+  if(n==3){resetGame();}else{gameActive=false;gamePaused=false;$('#game-modal').classList.remove('show');updateGameControls();}
+  $('#micro-formulas').hidden = !(n==1 && expanded);
+  $('#b1').setAttribute('aria-selected', n==1);
+  $('#b2').setAttribute('aria-selected', n==2);
+  $('#t1').style.display = n==1 ? '' : 'none';
+  $('#t2').style.display = n==2 ? '' : 'none';
+  lens.style.display = tag.style.display = n==1 ? '' : 'none';
+  $('#b1').classList.toggle('on', n==1);
+  $('#b2').classList.toggle('on', n==2);
+  if(n==2){ if(expanded) collapse(); updateCharts(); }
+}
+
+function expand(){
+  if(expanded || tab!=1) return; expanded=true;
+  $('#micro-formulas').hidden=false; 
+  lens.classList.add('open'); ui.classList.add('show'); tag.style.opacity=0; 
+  $('#bottom-formulas').style.opacity = '0'; $('#bottom-formulas').style.pointerEvents = 'none';
+  setLens(true);
+}
+function collapse(){
+  if(!expanded) return; expanded=false;
+  $('#micro-formulas').hidden=true; 
+  lens.classList.remove('open'); ui.classList.remove('show'); tag.style.opacity=1; 
+  $('#bottom-formulas').style.opacity = '1'; $('#bottom-formulas').style.pointerEvents = 'auto';
+  setLens(false);
+}
+
+lens.addEventListener('click', expand);
+$('#back').addEventListener('click', collapse);
+addEventListener('keydown', function(e){ if(e.key==='Escape' && !$('#concept-dialog').open) collapse(); });
+$('#b1').onclick = function(){ setTab(1) };
+$('#b2').onclick = function(){ setTab(2) };
+$('#b3').onclick = function(){ setTab(3) };
+
+$('#tr').addEventListener('input', function(e){
+  T = +e.target.value; 
+  $('#tv').textContent = T+' K'; 
+  updateCharts();
+});
+$('#er').addEventListener('input', function(e){
+  E_FIELD = +e.target.value; 
+  $('#ev').textContent = E_FIELD.toFixed(1)+' V/m';
+  updateCharts(); 
+});
+
+addEventListener('resize',resize);
+buildCharts(); updateCharts(); resize();
+
+var lastTime = 0;
+(function loop(now){
+  var dt = Math.min(2.5, (now - lastTime)/16.7 || 1);
+  lastTime = now;
+  updateAnnotations(now||0);
+  if(tab==1){
+    drawMicro(now||0, dt); 
+    if(!expanded) drawMacro(now||0, dt);
+  }else if(tab==3){
+    updateGame(now||0, dt);
+    renderGame();
+  }
+  requestAnimationFrame(loop)
+})(0);
+
+})();
+</script>
+</body>
+</html>
